@@ -8,6 +8,8 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
   theme: 'light',
   animationsEnabled: true,
   notificationsEnabled: false,
+  distractionFreeEnabled: false,
+  showMascotOnDashboard: true,
   sound: {
     enabled: true,
     volume: 0.6,

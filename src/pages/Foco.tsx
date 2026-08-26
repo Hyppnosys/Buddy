@@ -1,6 +1,7 @@
-import { Flame, ListChecks, Timer as TimerIcon } from 'lucide-react';
+import { Flame, ListChecks, ShieldOff, Timer as TimerIcon } from 'lucide-react';
 import { useTimer } from '../hooks/useTimer';
 import { useSessions } from '../hooks/useSessions';
+import { useSettings } from '../hooks/useSettings';
 import { Timer } from '../components/Timer';
 import { TimerControls } from '../components/TimerControls';
 import { SessionSelector } from '../components/SessionSelector';
@@ -8,9 +9,10 @@ import { CycleIndicator } from '../components/CycleIndicator';
 import { StatsCard } from '../components/StatsCard';
 import { HistoryList } from '../components/HistoryList';
 
-export function Home() {
+export function Foco() {
   const timer = useTimer();
   const { sessions, statistics } = useSessions();
+  const { settings, updateSettings } = useSettings();
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10 flex flex-col items-center gap-10 animate-fade-up">
@@ -20,6 +22,21 @@ export function Home() {
           Escolha uma sessão e comece. Seu progresso fica salvo automaticamente.
         </p>
       </div>
+
+      <button
+        onClick={() =>
+          updateSettings((prev) => ({ ...prev, distractionFreeEnabled: !prev.distractionFreeEnabled }))
+        }
+        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border transition-colors
+          ${
+            settings.distractionFreeEnabled
+              ? 'bg-(--color-long) text-white border-(--color-long)'
+              : 'border-(--color-border) text-(--color-ink-muted) hover:text-(--color-ink)'
+          }`}
+      >
+        <ShieldOff size={15} />
+        {settings.distractionFreeEnabled ? 'Sem distrações ativado' : 'Ativar modo sem distrações'}
+      </button>
 
       <SessionSelector
         value={timer.sessionType}

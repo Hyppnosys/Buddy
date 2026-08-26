@@ -2,7 +2,8 @@ import { createContext, useMemo, type ReactNode } from 'react';
 import type { Session } from '../types/session';
 import type { SessionType } from '../types/timer';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { STORAGE_KEYS } from '../services/storage';
+import { useAuth } from '../hooks/useAuth';
+import { STORAGE_KEYS, scopedKey } from '../services/storage';
 
 interface RecordSessionInput {
   type: SessionType;
@@ -24,7 +25,11 @@ function createId(): string {
 }
 
 export function SessionsProvider({ children }: { children: ReactNode }) {
-  const [sessions, setSessions] = useLocalStorage<Session[]>(STORAGE_KEYS.sessions, []);
+  const { currentUser } = useAuth();
+  const [sessions, setSessions] = useLocalStorage<Session[]>(
+    scopedKey(STORAGE_KEYS.sessions, currentUser?.id ?? null),
+    []
+  );
 
   const value = useMemo<SessionsContextValue>(
     () => ({

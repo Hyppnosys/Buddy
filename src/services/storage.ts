@@ -4,13 +4,24 @@
  * (REST API + PostgreSQL) could be swapped in without touching consumers.
  */
 
-const PREFIX = 'foco-relax:';
+const PREFIX = 'buddy:';
+
+export function scopedKey(base: string, userId: string | null): string {
+  return userId ? `${base}:${userId}` : base;
+}
 
 export const STORAGE_KEYS = {
   settings: `${PREFIX}settings`,
   timerSettings: `${PREFIX}timer-settings`,
   sessions: `${PREFIX}sessions`,
   timerState: `${PREFIX}timer-state`,
+  users: `${PREFIX}users`,
+  credentials: `${PREFIX}credentials`,
+  sessionUserId: `${PREFIX}session-user-id`,
+  journal: `${PREFIX}journal`,
+  checkins: `${PREFIX}checkins`,
+  friends: `${PREFIX}friends`,
+  mascot: `${PREFIX}mascot`,
 } as const;
 
 export function readStorage<T>(key: string, fallback: T): T {

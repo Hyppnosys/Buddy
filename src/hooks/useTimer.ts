@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { SessionType, TimerSettings, TimerSnapshot, TimerStatus } from '../types/timer';
 import { minutesToSeconds, secondsUntil } from '../utils/time';
-import { readStorage, writeStorage, STORAGE_KEYS } from '../services/storage';
+import { readStorage, writeStorage, STORAGE_KEYS, scopedKey } from '../services/storage';
 import { sendNotification } from '../services/notifications';
 import { useSessions } from './useSessions';
 import { useSettings } from './useSettings';
 import { useToast } from './useToast';
+import { useAuth } from './useAuth';
+import { useMascot } from './useMascot';
 
 interface PersistedTimerState extends TimerSnapshot {
   /** ISO timestamp the active/paused session originally started at. */
@@ -64,9 +66,12 @@ export function useTimer() {
   const { timerSettings, settings } = useSettings();
   const { recordSession } = useSessions();
   const { showToast } = useToast();
+  const { currentUser } = useAuth();
+  const { addActivity } = useMascot();
+  const timerStateKey = scopedKey(STORAGE_KEYS.timerState, currentUser?.id ?? null);
 
   const [state, setState] = useState<PersistedTimerState>(() =>
-    readStorage(STORAGE_KEYS.timerState, initialState(timerSettings))
+    readStorage(timerStateKey, initialState(timerSettings))
   );
   const stateRef = useRef(state);
   stateRef.current = state;
@@ -75,8 +80,8 @@ export function useTimer() {
 
   // Persist on every change.
   useEffect(() => {
-    writeStorage(STORAGE_KEYS.timerState, state);
-  }, [state]);
+    writeStorage(timerStateKey, state);
+  }, [state, timerStateKey]);
 
   // Reconcile with wall-clock time on mount (tab was closed/backgrounded).
   useEffect(() => {
@@ -121,9 +126,14 @@ export function useTimer() {
         const isFocus = prev.sessionType === 'focus';
         const title = isFocus ? '🎉 Sessão concluída!' : '⏰ Pausa concluída!';
         const description = isFocus ? 'Hora de fazer uma pausa.' : 'Hora de voltar ao foco.';
-        showToast(title, description);
-        if (settings.notificationsEnabled) {
-          sendNotification(title, description);
+        if (!settings.distractionFreeEnabled) {
+          showToast(title, description);
+          if (settings.notificationsEnabled) {
+            sendNotification(title, description);
+          }
+        }
+        if (isFocus) {
+          addActivity('Sessão de foco concluída', 2);
         }
       }
 
@@ -147,7 +157,7 @@ export function useTimer() {
         startedAt: new Date(now).toISOString(),
       });
     },
-    [recordSession, settings.notificationsEnabled, timerSettings, showToast]
+    [recordSession, settings.notificationsEnabled, settings.distractionFreeEnabled, timerSettings, showToast, addActivity]
   );
 
   // Auto-finish when the countdown hits zero.
