@@ -1,0 +1,135 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-display: "Fraunces", ui-serif, serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --color-bg: #F6F4EE;
+  --color-surface: #FFFFFF;
+  --color-surface-alt: #EFEBE1;
+  --color-border: #E4DFD3;
+
+  --color-ink: #23261F;
+  --color-ink-muted: #6B6F62;
+
+  --color-focus: #3F6B58;
+  --color-focus-soft: #E1EAE2;
+  --color-short: #C98A4B;
+  --color-short-soft: #F5E8D8;
+  --color-long: #4C7F92;
+  --color-long-soft: #DFEBEE;
+  --color-relax: #7C6FB0;
+  --color-relax-soft: #E9E5F5;
+
+  --color-danger: #B4544A;
+  --color-success: #3F6B58;
+
+  --shadow-soft: 0 1px 2px rgba(35, 38, 31, 0.04), 0 8px 24px -12px rgba(35, 38, 31, 0.12);
+  --shadow-lift: 0 2px 4px rgba(35, 38, 31, 0.06), 0 16px 40px -16px rgba(35, 38, 31, 0.18);
+}
+
+.dark {
+  --color-bg: #12151A;
+  --color-surface: #1B1F26;
+  --color-surface-alt: #232830;
+  --color-border: #2B313B;
+
+  --color-ink: #ECEEE8;
+  --color-ink-muted: #9CA3AC;
+
+  --color-focus: #6FA98F;
+  --color-focus-soft: #1E2C27;
+  --color-short: #E0A468;
+  --color-short-soft: #2E2519;
+  --color-long: #74B0C4;
+  --color-long-soft: #1B2A2F;
+  --color-relax: #A79BDB;
+  --color-relax-soft: #262239;
+
+  --color-danger: #E08880;
+  --color-success: #6FA98F;
+
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.2), 0 8px 24px -12px rgba(0, 0, 0, 0.5);
+  --shadow-lift: 0 2px 4px rgba(0, 0, 0, 0.25), 0 16px 40px -16px rgba(0, 0, 0, 0.6);
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+html {
+  color-scheme: light;
+}
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+::selection {
+  background: var(--color-focus-soft);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@keyframes breathe-in {
+  from { transform: scale(0.72); }
+  to { transform: scale(1); }
+}
+@keyframes breathe-out {
+  from { transform: scale(1); }
+  to { transform: scale(0.72); }
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(-12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes soft-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+.animate-fade-up { animation: fade-up 0.45s ease both; }
+.animate-pop-in { animation: pop-in 0.25s ease both; }
+.animate-toast-in { animation: toast-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-soft-pulse { animation: soft-pulse 2.2s ease-in-out infinite; }
+
+/* subtle custom scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 999px;
+}
