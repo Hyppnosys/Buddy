@@ -1,7 +1,13 @@
 export interface Friend {
   id: string;
+  /** References the real account id from AuthContext's user list. */
+  userId: string;
   name: string;
+  avatarDataUrl: string | null;
   colorSeed: string;
+  /** 'accepted' is used today (adding is immediate); the other states are
+   * kept ready for a future request/accept flow without a data migration. */
+  status: 'accepted' | 'pending_sent' | 'pending_received';
   addedAt: string;
 }
 

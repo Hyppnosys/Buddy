@@ -5,11 +5,18 @@ import { useAuth } from '../hooks/useAuth';
 import { STORAGE_KEYS, scopedKey } from '../services/storage';
 
 const DEFAULT_MASCOT: MascotState = {
-  name: 'Broto',
+  name: 'Rio',
   xp: 0,
   log: [],
   sharedWithFriendIds: [],
   color: '#3F6B58',
+};
+
+export const STAGE_LABEL: Record<MascotStage, string> = {
+  egg: 'Recém-nascido',
+  hatchling: 'Filhote',
+  young: 'Jovem',
+  grown: 'Adulto',
 };
 
 export const STAGE_THRESHOLDS: Record<MascotStage, number> = {

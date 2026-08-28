@@ -3,15 +3,19 @@ import type { BreathingPhaseConfig } from '../types/relaxation';
 
 interface UseBreathingExerciseOptions {
   phases: BreathingPhaseConfig[];
+  /** Called every time a new phase begins (including the first one on start). */
+  onPhaseStart?: (phase: BreathingPhaseConfig) => void;
 }
 
-export function useBreathingExercise({ phases }: UseBreathingExerciseOptions) {
+export function useBreathingExercise({ phases, onPhaseStart }: UseBreathingExerciseOptions) {
   const [isActive, setIsActive] = useState(false);
   const [phaseIndex, setPhaseIndex] = useState(0);
   const [secondsLeft, setSecondsLeft] = useState(phases[0]?.seconds ?? 0);
   const [cyclesCompleted, setCyclesCompleted] = useState(0);
 
   const timeoutRef = useRef<number | null>(null);
+  const onPhaseStartRef = useRef(onPhaseStart);
+  onPhaseStartRef.current = onPhaseStart;
 
   const clear = useCallback(() => {
     if (timeoutRef.current !== null) {
@@ -26,6 +30,7 @@ export function useBreathingExercise({ phases }: UseBreathingExerciseOptions) {
     setIsActive(true);
     setPhaseIndex(0);
     setSecondsLeft(phases[0]?.seconds ?? 0);
+    if (phases[0]) onPhaseStartRef.current?.(phases[0]);
   }, [phases]);
 
   const stop = useCallback(() => {
@@ -48,6 +53,7 @@ export function useBreathingExercise({ phases }: UseBreathingExerciseOptions) {
             setCyclesCompleted((c) => c + 1);
           }
           setSecondsLeft(phases[nextIndex]?.seconds ?? 0);
+          if (phases[nextIndex]) onPhaseStartRef.current?.(phases[nextIndex]);
           return nextIndex;
         });
 

@@ -1,6 +1,7 @@
 import { createContext, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
-import type { AuthFormValues, StoredCredential, User } from '../types/user';
+import type { AuthFormValues, PublicUser, StoredCredential, User } from '../types/user';
 import { readStorage, writeStorage, STORAGE_KEYS } from '../services/storage';
+import { isAllowedEmailDomain } from '../utils/emailProviders';
 
 interface AuthContextValue {
   currentUser: User | null;
@@ -9,6 +10,8 @@ interface AuthContextValue {
   logIn: (values: AuthFormValues) => { ok: true } | { ok: false; error: string };
   logOut: () => void;
   updateProfile: (updater: (prev: User) => User) => void;
+  /** Searches real registered accounts by name or e-mail (never returns the caller). */
+  searchUsers: (query: string) => PublicUser[];
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
@@ -17,8 +20,20 @@ function createId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
-function isValidEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+/**
+ * Validates that an e-mail has a well-formed structure (text before the @,
+ * a domain, a dot-separated extension — so "user@domain" or "user@.com"
+ * fail) AND that the domain belongs to a real, well-known provider (see
+ * utils/emailProviders.ts). This blocks made-up domains like "user@kkk.com"
+ * that pass a plain format check but aren't a real e-mail service.
+ */
+export function isValidEmail(email: string): boolean {
+  const wellFormed = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  return wellFormed && isAllowedEmailDomain(email);
+}
+
+function toPublicUser(user: User): PublicUser {
+  return { id: user.id, name: user.name, avatarDataUrl: user.avatarDataUrl };
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -72,6 +87,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logIn = useCallback(
     (values: AuthFormValues): { ok: true } | { ok: false; error: string } => {
       const email = values.email.trim().toLowerCase();
+      if (!isValidEmail(email)) return { ok: false, error: 'Digite um e-mail válido.' };
+
       const match = credentials.find((c) => c.email === email);
       if (!match || match.password !== values.password) {
         return { ok: false, error: 'E-mail ou senha incorretos.' };
@@ -92,9 +109,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [sessionUserId]
   );
 
+  const searchUsers = useCallback(
+    (query: string): PublicUser[] => {
+      const term = query.trim().toLowerCase();
+      if (term.length < 2) return [];
+      return users
+        .filter((u) => u.id !== sessionUserId)
+        .filter((u) => u.name.toLowerCase().includes(term) || u.email.toLowerCase().includes(term))
+        .slice(0, 20)
+        .map(toPublicUser);
+    },
+    [users, sessionUserId]
+  );
+
   const value = useMemo(
-    () => ({ currentUser, isLoading, signUp, logIn, logOut, updateProfile }),
-    [currentUser, isLoading, signUp, logIn, logOut, updateProfile]
+    () => ({ currentUser, isLoading, signUp, logIn, logOut, updateProfile, searchUsers }),
+    [currentUser, isLoading, signUp, logIn, logOut, updateProfile, searchUsers]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

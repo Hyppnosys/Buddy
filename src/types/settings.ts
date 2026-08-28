@@ -11,6 +11,5 @@ export interface UserSettings {
   animationsEnabled: boolean;
   notificationsEnabled: boolean;
   distractionFreeEnabled: boolean;
-  showMascotOnDashboard: boolean;
   sound: SoundSettings;
 }

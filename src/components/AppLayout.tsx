@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { Leaf, Menu, ShieldOff } from 'lucide-react';
+import { Menu, ShieldOff } from 'lucide-react';
 import { Sidebar, MobileDrawer } from './Sidebar';
+import { Logo } from './Logo';
 import { useSettings } from '../hooks/useSettings';
 
 export function AppLayout() {
@@ -18,9 +19,7 @@ export function AppLayout() {
       <div className="flex-1 min-w-0 flex flex-col">
         <div className="lg:hidden sticky top-0 z-40 flex items-center justify-between h-14 px-4 bg-(--color-surface) border-b border-(--color-border)">
           <div className="flex items-center gap-2 font-display font-semibold">
-            <span className="w-7 h-7 rounded-lg bg-(--color-focus) text-white flex items-center justify-center">
-              <Leaf size={14} />
-            </span>
+            <Logo size={28} />
             Buddy
           </div>
           <button

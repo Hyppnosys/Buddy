@@ -1,13 +1,16 @@
 import { createContext, useMemo, type ReactNode } from 'react';
 import type { Friend } from '../types/social';
+import type { PublicUser } from '../types/user';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useAuth } from '../hooks/useAuth';
 import { STORAGE_KEYS, scopedKey } from '../services/storage';
 
 interface FriendsContextValue {
   friends: Friend[];
-  addFriend: (name: string) => void;
+  /** Adds a real registered user (found via search) as a friend. */
+  addFriend: (user: PublicUser) => void;
   removeFriend: (id: string) => void;
+  isFriend: (userId: string) => boolean;
 }
 
 export const FriendsContext = createContext<FriendsContextValue | null>(null);
@@ -16,7 +19,7 @@ function createId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
-const SEED_PALETTE = ['#3F6B58', '#C98A4B', '#4C7F92', '#7C6FB0', '#B4544A'];
+const SEED_PALETTE = ['#3F6B58', '#C98A4B', '#4C7F92', '#4F9D74', '#B4544A'];
 
 export function FriendsProvider({ children }: { children: ReactNode }) {
   const { currentUser } = useAuth();
@@ -28,18 +31,21 @@ export function FriendsProvider({ children }: { children: ReactNode }) {
   const value = useMemo<FriendsContextValue>(
     () => ({
       friends,
-      addFriend: (name) => {
-        const trimmed = name.trim();
-        if (!trimmed) return;
+      addFriend: (user) => {
+        if (friends.some((f) => f.userId === user.id)) return;
         const friend: Friend = {
           id: createId(),
-          name: trimmed,
+          userId: user.id,
+          name: user.name,
+          avatarDataUrl: user.avatarDataUrl,
           colorSeed: SEED_PALETTE[friends.length % SEED_PALETTE.length],
+          status: 'accepted',
           addedAt: new Date().toISOString(),
         };
         setFriends((prev) => [...prev, friend]);
       },
       removeFriend: (id) => setFriends((prev) => prev.filter((f) => f.id !== id)),
+      isFriend: (userId) => friends.some((f) => f.userId === userId),
     }),
     [friends, setFriends]
   );

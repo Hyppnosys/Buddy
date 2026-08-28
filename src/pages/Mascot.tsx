@@ -4,17 +4,10 @@ import { Card } from '../components/Card';
 import { MascotAvatar } from '../components/MascotAvatar';
 import { useMascot } from '../hooks/useMascot';
 import { useFriends } from '../hooks/useFriends';
-import { nextStageInfo } from '../context/MascotContext';
+import { nextStageInfo, STAGE_LABEL } from '../context/MascotContext';
 import { formatClock, formatDayLabel } from '../utils/time';
 
-const STAGE_LABEL: Record<string, string> = {
-  egg: 'Ovo',
-  hatchling: 'Filhote',
-  young: 'Jovem',
-  grown: 'Adulto',
-};
-
-const COLOR_OPTIONS = ['#3F6B58', '#C98A4B', '#4C7F92', '#7C6FB0', '#B4544A'];
+const COLOR_OPTIONS = ['#3F6B58', '#C98A4B', '#4C7F92', '#4F9D74', '#B4544A'];
 
 export function Mascot() {
   const { mascot, stage, renameMascot, setMascotColor, toggleShareWithFriend } = useMascot();

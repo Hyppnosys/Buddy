@@ -18,9 +18,10 @@ import {
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../hooks/useTheme';
 import { useSettings } from '../hooks/useSettings';
+import { Logo } from './Logo';
 
 const NAV_ITEMS = [
-  { to: '/app', label: 'Painel', icon: BarChart3, end: true },
+  { to: '/app', label: 'Início', icon: BarChart3, end: true },
   { to: '/app/foco', label: 'Foco', icon: TimerIcon, end: false },
   { to: '/app/diario', label: 'Diário', icon: BookHeart, end: false },
   { to: '/app/checkin', label: 'Como você está', icon: ClipboardList, end: false },
@@ -67,9 +68,7 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <div className="flex flex-col h-full">
       <div className="hidden lg:flex items-center gap-2 px-5 h-16 shrink-0 font-display font-semibold text-lg">
-        <span className="w-8 h-8 rounded-xl bg-(--color-focus) text-white flex items-center justify-center">
-          <Leaf size={16} />
-        </span>
+        <Logo size={32} />
         Buddy
       </div>
 
@@ -169,9 +168,7 @@ export function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => 
       />
       <div className="absolute left-0 top-0 h-full w-72 max-w-[85vw] bg-(--color-surface) shadow-(--shadow-lift) animate-pop-in">
         <div className="flex items-center gap-2 px-5 h-16 font-display font-semibold text-lg border-b border-(--color-border)">
-          <span className="w-8 h-8 rounded-xl bg-(--color-focus) text-white flex items-center justify-center">
-            <Leaf size={16} />
-          </span>
+          <Logo size={32} />
           Buddy
           <button
             onClick={onClose}

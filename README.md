@@ -34,20 +34,31 @@ Abra o endereço mostrado no terminal (normalmente `http://localhost:5173`).
 ## Funcionalidades
 
 **Antes de entrar**
-- Tela inicial (landing) com mascote ilustrado
-- Login / cadastro (contas salvas neste dispositivo/navegador)
+- Tela inicial (landing) com a lontra mascote ilustrada e logo verde
+- Login / cadastro com validação de e-mail (aceita qualquer provedor: Gmail,
+  Hotmail, Yahoo, Outlook, etc.)
 
 **Depois de entrar** (layout com sidebar)
-- **Painel** — estatísticas do dia, atalhos rápidos e o mascote (pode ser ocultado)
-- **Foco** — timer Pomodoro com ciclos, ✕ modo sem distrações
+- **Início** — pessoa + mascote lontra lado a lado, atalho para o check-in
+  pendente, e "Escolha uma sequência" (Respiração, Relaxamento, Alongamento,
+  Combo Diário) — tela propositalmente enxuta, sem gráficos ou estatísticas
+- **Foco** — timer Pomodoro com ciclos, modo sem distrações
 - **Diário** — registro de humor + texto livre, histórico
 - **Como você está** — check-in diário (humor, sono, energia, gratidão)
-- **Relaxar** — respiração guiada, rotina de yoga com 7 posturas, sons ambientes
+- **Relaxar** — três abas:
+  - *Respiração*: sequência Inspira → Segura → Expira com indicação visual
+    clara, mascote animado, e som real (gerado via Web Audio API, sem
+    depender de arquivos externos) com botão liga/desliga logo abaixo
+  - *Exercitar*: 5 combos de posturas (Fluxo suave, Alongamento rápido,
+    Energia matinal, Relaxamento noturno, Combo diário), cada postura com
+    3 ilustrações (frente, esquerda, direita)
+  - *Sons*: sons ambientes com volume
 - **Estatísticas** — visão completa do progresso e histórico de sessões
-- **Amigos** — conexões locais para acompanhar a rotina em conjunto
-- **Mascote** — evolui (ovo → filhote → jovem → adulto) com pontos ganhos ao
-  completar foco, diário, check-in e yoga; pode ser renomeado, recolorido e
-  compartilhado com amigos
+- **Amigos** — busca real entre as contas cadastradas (por nome ou e-mail),
+  com estados de carregamento/vazio, e lista de conexões
+- **Mascote** — a lontra evolui (recém-nascido → filhote → jovem → adulto)
+  com pontos ganhos ao completar foco, diário, check-in, respiração e yoga;
+  pode ser renomeada, recolorida e compartilhada com amigos
 - **Perfil** — nome, foto (upload real), bio, logout
 - **Configurações** — timer, sons, tema, notificações, modo sem distrações,
   limpar dados
@@ -71,11 +82,21 @@ src/
 ## Decisões técnicas
 
 - **Contas locais (mock):** não há backend. Cadastro/login funcionam de
-  verdade, mas os dados (usuários, senha em texto simples) ficam só no
+  verdade — incluindo validação de e-mail e busca real de outros usuários
+  cadastrados — mas os dados (usuários, senha em texto simples) ficam só no
   navegador do dispositivo. Não é uma autenticação segura para produção —
   serve para demonstrar o fluxo completo e já deixa a estrutura pronta para
   trocar por um backend real (a leitura/escrita passa toda por
   `services/storage.ts`).
+- **Busca de amigos com dados reais:** como todas as contas criadas no mesmo
+  navegador compartilham a mesma lista de usuários, criar duas contas nesse
+  navegador e buscar uma pela outra funciona de verdade — não é uma lista
+  fixa. Uma busca entre dispositivos diferentes exigiria um backend.
+- **Som da respiração:** gerado ao vivo com a Web Audio API (um tom que sobe
+  durante a inspiração e desce durante a expiração) — não depende de nenhum
+  arquivo de áudio, então funciona imediatamente sem precisar adicionar assets.
+- **Ilustrações de postura:** são desenhos simples tipo "boneco palito" em
+  SVG, não fotos — mantém o app leve e a identidade visual consistente.
 - **Dados isolados por usuário:** sessões, diário, check-ins, amigos e
   mascote são gravados com uma chave por conta, então trocar de usuário no
   mesmo navegador nunca mistura dados de rotinas diferentes.

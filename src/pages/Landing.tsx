@@ -3,6 +3,7 @@ import { BookHeart, Leaf, Timer as TimerIcon, Users } from 'lucide-react';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { MascotAvatar } from '../components/MascotAvatar';
+import { Logo } from '../components/Logo';
 
 const FEATURES = [
   {
@@ -36,9 +37,7 @@ export function Landing() {
     <div className="min-h-screen flex flex-col">
       <header className="max-w-6xl mx-auto w-full px-6 h-16 flex items-center justify-between">
         <div className="flex items-center gap-2 font-display font-semibold text-lg">
-          <span className="w-8 h-8 rounded-xl bg-(--color-focus) text-white flex items-center justify-center">
-            <Leaf size={16} />
-          </span>
+          <Logo size={32} />
           Buddy
         </div>
         <div className="flex items-center gap-2">

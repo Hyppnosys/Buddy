@@ -1,18 +1,22 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Card } from '../components/Card';
 import { RelaxationExercise } from '../components/RelaxationExercise';
 import { SoundPlayer } from '../components/SoundPlayer';
 import { YogaSession } from '../components/YogaSession';
+import { ComboList } from '../components/ComboList';
+import { YOGA_COMBOS, findYogaCombo } from '../utils/yoga';
 import type { RelaxationExercise as RelaxationExerciseConfig } from '../types/relaxation';
+import type { YogaRoutine } from '../types/wellness';
 
 const BREATHING_EXERCISE: RelaxationExerciseConfig = {
   id: 'box-breathing',
   name: 'Respire',
   description: 'Inspire, segure e expire em um ritmo constante para acalmar a mente.',
   phases: [
-    { key: 'inhale', label: 'Inspire', seconds: 4 },
-    { key: 'hold', label: 'Segure', seconds: 4 },
-    { key: 'exhale', label: 'Expire', seconds: 4 },
+    { key: 'inhale', label: 'Inspira', seconds: 4 },
+    { key: 'hold', label: 'Segura', seconds: 4 },
+    { key: 'exhale', label: 'Expira', seconds: 6 },
   ],
 };
 
@@ -25,7 +29,29 @@ const TABS: { value: Tab; label: string }[] = [
 ];
 
 export function Relax() {
-  const [tab, setTab] = useState<Tab>('respirar');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlTab = searchParams.get('tab');
+  const urlCombo = searchParams.get('combo');
+
+  const [tab, setTab] = useState<Tab>(urlTab === 'yoga' || urlTab === 'sons' ? (urlTab as Tab) : 'respirar');
+  const [activeCombo, setActiveCombo] = useState<YogaRoutine | null>(urlCombo ? findYogaCombo(urlCombo) : null);
+
+  // Keep the tab/combo in sync if the page is opened again with new query params
+  // (e.g. clicking a different shortcut on the Início page while already here).
+  useEffect(() => {
+    if (urlTab === 'yoga' || urlTab === 'sons' || urlTab === 'respirar') {
+      setTab(urlTab);
+    }
+    if (urlCombo) {
+      setActiveCombo(findYogaCombo(urlCombo));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlTab, urlCombo]);
+
+  const changeTab = (next: Tab) => {
+    setTab(next);
+    setSearchParams(next === 'respirar' ? {} : { tab: next }, { replace: true });
+  };
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10 flex flex-col gap-8 animate-fade-up">
@@ -46,7 +72,7 @@ export function Relax() {
             key={t.value}
             role="tab"
             aria-selected={tab === t.value}
-            onClick={() => setTab(t.value)}
+            onClick={() => changeTab(t.value)}
             className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200
               ${tab === t.value ? 'bg-(--color-relax) text-white shadow-(--shadow-soft)' : 'text-(--color-ink-muted) hover:text-(--color-ink)'}`}
           >
@@ -55,11 +81,26 @@ export function Relax() {
         ))}
       </div>
 
-      <Card>
-        {tab === 'respirar' && <RelaxationExercise exercise={BREATHING_EXERCISE} />}
-        {tab === 'yoga' && <YogaSession />}
-        {tab === 'sons' && <SoundPlayer />}
-      </Card>
+      {tab === 'respirar' && (
+        <Card>
+          <RelaxationExercise exercise={BREATHING_EXERCISE} />
+        </Card>
+      )}
+
+      {tab === 'yoga' &&
+        (activeCombo ? (
+          <Card>
+            <YogaSession routine={activeCombo} onExit={() => setActiveCombo(null)} />
+          </Card>
+        ) : (
+          <ComboList combos={YOGA_COMBOS} onSelect={setActiveCombo} />
+        ))}
+
+      {tab === 'sons' && (
+        <Card>
+          <SoundPlayer />
+        </Card>
+      )}
     </div>
   );
 }

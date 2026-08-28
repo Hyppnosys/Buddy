@@ -1,9 +1,9 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Leaf } from 'lucide-react';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { MascotAvatar } from '../components/MascotAvatar';
+import { Logo } from '../components/Logo';
 import { useAuth } from '../hooks/useAuth';
 
 export function Login() {
@@ -47,9 +47,7 @@ export function Login() {
 
         <Card className="w-full max-w-md mx-auto">
           <div className="flex items-center gap-2 font-display font-semibold text-lg mb-6 justify-center lg:justify-start">
-            <span className="w-8 h-8 rounded-xl bg-(--color-focus) text-white flex items-center justify-center">
-              <Leaf size={16} />
-            </span>
+            <Logo size={32} />
             Buddy
           </div>
 
@@ -106,8 +104,13 @@ export function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full rounded-xl border border-(--color-border) bg-(--color-bg) px-4 py-2.5 text-sm"
-                placeholder="voce@email.com"
+                placeholder="voce@gmail.com"
               />
+              {mode === 'cadastro' && (
+                <p className="text-xs text-(--color-ink-muted) mt-1.5">
+                  Use um e-mail de um provedor conhecido (Gmail, Outlook, Hotmail, Yahoo, iCloud...).
+                </p>
+              )}
             </div>
 
             <div>
