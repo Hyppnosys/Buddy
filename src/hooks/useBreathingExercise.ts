@@ -3,7 +3,6 @@ import type { BreathingPhaseConfig } from '../types/relaxation';
 
 interface UseBreathingExerciseOptions {
   phases: BreathingPhaseConfig[];
-  /** Called every time a new phase begins (including the first one on start). */
   onPhaseStart?: (phase: BreathingPhaseConfig) => void;
 }
 
@@ -46,18 +45,14 @@ export function useBreathingExercise({ phases, onPhaseStart }: UseBreathingExerc
     timeoutRef.current = window.setInterval(() => {
       setSecondsLeft((prev) => {
         if (prev > 1) return prev - 1;
-
         setPhaseIndex((prevIndex) => {
           const nextIndex = (prevIndex + 1) % phases.length;
-          if (nextIndex === 0) {
-            setCyclesCompleted((c) => c + 1);
-          }
+          if (nextIndex === 0) setCyclesCompleted((c) => c + 1);
           setSecondsLeft(phases[nextIndex]?.seconds ?? 0);
           if (phases[nextIndex]) onPhaseStartRef.current?.(phases[nextIndex]);
           return nextIndex;
         });
-
-        return prev; // will be overwritten by setSecondsLeft above
+        return prev;
       });
     }, 1000);
     return clear;
@@ -65,12 +60,5 @@ export function useBreathingExercise({ phases, onPhaseStart }: UseBreathingExerc
 
   const currentPhase = phases[phaseIndex];
 
-  return {
-    isActive,
-    currentPhase,
-    secondsLeft,
-    cyclesCompleted,
-    start,
-    stop,
-  };
+  return { isActive, currentPhase, secondsLeft, cyclesCompleted, start, stop };
 }

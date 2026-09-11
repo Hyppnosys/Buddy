@@ -24,27 +24,19 @@ export function Dashboard() {
   const { currentUser } = useAuth();
   const { mascot, stage } = useMascot();
   const { todayCheckIn } = useCheckIns();
-
   const firstName = currentUser?.name.split(' ')[0] ?? '';
 
   return (
     <div className="max-w-xl mx-auto px-4 sm:px-6 py-12 flex flex-col items-center gap-8 animate-fade-up text-center">
       <div>
-        <h1 className="font-display text-2xl sm:text-3xl font-semibold">
-          {greeting()}, {firstName}! 👋
-        </h1>
-        <p className="text-(--color-ink-muted) mt-1.5">
-          {mascot.name} está aqui para acompanhar você hoje.
-        </p>
+        <h1 className="font-display text-2xl sm:text-3xl font-semibold">{greeting()}, {firstName}! 👋</h1>
+        <p className="text-(--color-ink-muted) mt-1.5">{mascot.name} está aqui para acompanhar você hoje.</p>
       </div>
 
       <CompanionScene stage={stage} color={mascot.color} />
 
       {!todayCheckIn && (
-        <Link
-          to="/app/checkin"
-          className="text-sm font-semibold text-(--color-focus) hover:underline"
-        >
+        <Link to="/app/checkin" className="text-sm font-semibold text-(--color-focus) hover:underline">
           Ainda não fez o check-in de hoje — responder agora
         </Link>
       )}

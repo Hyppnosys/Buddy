@@ -7,7 +7,6 @@ import { STORAGE_KEYS, scopedKey } from '../services/storage';
 
 interface FriendsContextValue {
   friends: Friend[];
-  /** Adds a real registered user (found via search) as a friend. */
   addFriend: (user: PublicUser) => void;
   removeFriend: (id: string) => void;
   isFriend: (userId: string) => boolean;

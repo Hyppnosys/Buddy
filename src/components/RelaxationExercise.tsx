@@ -12,12 +12,7 @@ interface RelaxationExerciseProps {
   exercise: RelaxationExerciseConfig;
 }
 
-const PHASE_LABEL: Record<string, string> = {
-  inhale: 'Inspira',
-  hold: 'Segura',
-  exhale: 'Expira',
-};
-
+const PHASE_LABEL: Record<string, string> = { inhale: 'Inspira', hold: 'Segura', exhale: 'Expira' };
 const STEPS: { key: 'inhale' | 'hold' | 'exhale'; label: string }[] = [
   { key: 'inhale', label: 'Inspira' },
   { key: 'hold', label: 'Segura' },
@@ -66,13 +61,18 @@ export function RelaxationExercise({ exercise }: RelaxationExerciseProps) {
         : { transform: 'scale(1)' };
 
   const toggleSound = () => {
-    updateSettings((prev) => ({ ...prev, sound: { ...prev.sound, enabled: !prev.sound.enabled } }));
+    const next = !soundOn;
+    sound.setEnabled(isActive && next);
+    updateSettings((prev) => ({ ...prev, sound: { ...prev.sound, enabled: next } }));
+  };
+
+  const handleStart = () => {
+    sound.setEnabled(soundOn);
+    start();
   };
 
   return (
     <div className="flex flex-col items-center gap-6 py-4">
-      {/* Inspira → Segura → Expira stepper: always visible so the user knows
-          exactly what the current and upcoming steps are. */}
       <div className="flex items-center gap-1.5" role="img" aria-label="Sequência: Inspira, Segura, Expira">
         {STEPS.map((step, i) => (
           <div key={step.key} className="flex items-center gap-1.5">
@@ -88,16 +88,10 @@ export function RelaxationExercise({ exercise }: RelaxationExerciseProps) {
       </div>
 
       <div className="relative w-64 h-64 flex items-center justify-center">
-        <div
-          key={isActive ? phaseKey : 'idle'}
-          className="absolute inset-0 rounded-full bg-(--color-relax-soft)"
-          style={animationStyle}
-        />
+        <div key={isActive ? phaseKey : 'idle'} className="absolute inset-0 rounded-full bg-(--color-relax-soft)" style={animationStyle} />
         <div className="relative z-10 flex flex-col items-center justify-center gap-1">
           <MascotAvatar stage="young" color={mascot.color} size={84} animated={isActive} />
-          <span className="font-display text-lg font-semibold text-(--color-relax)">
-            {isActive ? PHASE_LABEL[phaseKey] : 'Pronto?'}
-          </span>
+          <span className="font-display text-lg font-semibold text-(--color-relax)">{isActive ? PHASE_LABEL[phaseKey] : 'Pronto?'}</span>
           <span className="text-3xl font-display tabular-nums">
             {isActive ? secondsLeft : exercise.phases[0]?.seconds}
             <span className="text-base">s</span>
@@ -107,14 +101,12 @@ export function RelaxationExercise({ exercise }: RelaxationExerciseProps) {
 
       <div className="text-center min-h-5">
         <p className="text-sm text-(--color-ink-muted)">
-          {isActive
-            ? `Ciclos completos: ${cyclesCompleted}`
-            : 'Um exercício simples para acalmar a mente antes ou depois do foco.'}
+          {isActive ? `Ciclos completos: ${cyclesCompleted}` : 'Um exercício simples para acalmar a mente antes ou depois do foco.'}
         </p>
       </div>
 
       {!isActive ? (
-        <Button size="lg" onClick={start} icon={<Play size={18} fill="currentColor" />}>
+        <Button size="lg" onClick={handleStart} icon={<Play size={18} fill="currentColor" />}>
           Começar a respirar
         </Button>
       ) : (
@@ -123,7 +115,6 @@ export function RelaxationExercise({ exercise }: RelaxationExerciseProps) {
         </Button>
       )}
 
-      {/* Sound control sits right below the breathing area, as requested. */}
       <button
         onClick={toggleSound}
         aria-pressed={soundOn}

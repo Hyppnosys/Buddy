@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Bell, Moon, Palette, Sparkles, Timer as TimerIcon, Trash2 } from 'lucide-react';
+import { Bell, Palette, Sparkles, Timer as TimerIcon, Trash2 } from 'lucide-react';
 import { useSettings } from '../hooks/useSettings';
 import { useSessions } from '../hooks/useSessions';
 import { useTheme } from '../hooks/useTheme';
@@ -7,10 +7,7 @@ import { NumberField } from './NumberField';
 import { Toggle } from './Toggle';
 import { SoundPlayer } from './SoundPlayer';
 import { Button } from './Button';
-import {
-  getNotificationPermission,
-  requestNotificationPermission,
-} from '../services/notifications';
+import { getNotificationPermission, requestNotificationPermission } from '../services/notifications';
 
 function SectionTitle({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
   return (
@@ -21,15 +18,7 @@ function SectionTitle({ icon, children }: { icon: React.ReactNode; children: Rea
   );
 }
 
-function ConfirmAction({
-  label,
-  confirmLabel,
-  onConfirm,
-}: {
-  label: string;
-  confirmLabel: string;
-  onConfirm: () => void;
-}) {
+function ConfirmAction({ label, confirmLabel, onConfirm }: { label: string; confirmLabel: string; onConfirm: () => void }) {
   const [confirming, setConfirming] = useState(false);
 
   if (confirming) {
@@ -37,29 +26,15 @@ function ConfirmAction({
       <div className="flex items-center justify-between gap-3 py-2">
         <span className="text-sm">{confirmLabel}</span>
         <div className="flex gap-2 shrink-0">
-          <Button size="sm" variant="ghost" onClick={() => setConfirming(false)}>
-            Cancelar
-          </Button>
-          <Button
-            size="sm"
-            variant="danger"
-            onClick={() => {
-              onConfirm();
-              setConfirming(false);
-            }}
-          >
-            Confirmar
-          </Button>
+          <Button size="sm" variant="ghost" onClick={() => setConfirming(false)}>Cancelar</Button>
+          <Button size="sm" variant="danger" onClick={() => { onConfirm(); setConfirming(false); }}>Confirmar</Button>
         </div>
       </div>
     );
   }
 
   return (
-    <button
-      onClick={() => setConfirming(true)}
-      className="flex items-center gap-2 text-sm font-medium text-(--color-danger) py-2 hover:underline"
-    >
+    <button onClick={() => setConfirming(true)} className="flex items-center gap-2 text-sm font-medium text-(--color-danger) py-2 hover:underline">
       <Trash2 size={15} />
       {label}
     </button>
@@ -95,35 +70,11 @@ export function SettingsForm() {
       <section className="flex flex-col gap-1">
         <SectionTitle icon={<TimerIcon size={14} />}>Timer</SectionTitle>
         <div className="divide-y divide-(--color-border)">
-          <NumberField
-            label="Duração do foco"
-            value={timerSettings.focusMinutes}
-            onChange={(v) => updateTimerSettings((prev) => ({ ...prev, focusMinutes: v }))}
-          />
-          <NumberField
-            label="Pausa curta"
-            value={timerSettings.shortBreakMinutes}
-            onChange={(v) => updateTimerSettings((prev) => ({ ...prev, shortBreakMinutes: v }))}
-          />
-          <NumberField
-            label="Pausa longa"
-            value={timerSettings.longBreakMinutes}
-            onChange={(v) => updateTimerSettings((prev) => ({ ...prev, longBreakMinutes: v }))}
-          />
-          <NumberField
-            label="Sessões até a pausa longa"
-            value={timerSettings.sessionsBeforeLongBreak}
-            min={2}
-            max={8}
-            suffix=""
-            onChange={(v) => updateTimerSettings((prev) => ({ ...prev, sessionsBeforeLongBreak: v }))}
-          />
-          <Toggle
-            checked={timerSettings.autoStartNext}
-            onChange={(checked) => updateTimerSettings((prev) => ({ ...prev, autoStartNext: checked }))}
-            label="Iniciar próxima sessão automaticamente"
-            description="Ao concluir, o próximo período começa sem precisar tocar em Iniciar."
-          />
+          <NumberField label="Duração do foco" value={timerSettings.focusMinutes} onChange={(v) => updateTimerSettings((prev) => ({ ...prev, focusMinutes: v }))} />
+          <NumberField label="Pausa curta" value={timerSettings.shortBreakMinutes} onChange={(v) => updateTimerSettings((prev) => ({ ...prev, shortBreakMinutes: v }))} />
+          <NumberField label="Pausa longa" value={timerSettings.longBreakMinutes} onChange={(v) => updateTimerSettings((prev) => ({ ...prev, longBreakMinutes: v }))} />
+          <NumberField label="Sessões até a pausa longa" value={timerSettings.sessionsBeforeLongBreak} min={2} max={8} suffix="" onChange={(v) => updateTimerSettings((prev) => ({ ...prev, sessionsBeforeLongBreak: v }))} />
+          <Toggle checked={timerSettings.autoStartNext} onChange={(checked) => updateTimerSettings((prev) => ({ ...prev, autoStartNext: checked }))} label="Iniciar próxima sessão automaticamente" description="Ao concluir, o próximo período começa sem precisar tocar em Iniciar." />
         </div>
       </section>
 
@@ -135,39 +86,20 @@ export function SettingsForm() {
       <section className="flex flex-col gap-1">
         <SectionTitle icon={<Palette size={14} />}>Interface</SectionTitle>
         <div className="divide-y divide-(--color-border)">
-          <Toggle
-            checked={theme === 'dark'}
-            onChange={toggleTheme}
-            label="Modo escuro"
-            description="Alterne entre os temas claro e escuro."
-          />
-          <Toggle
-            checked={settings.animationsEnabled}
-            onChange={(checked) => updateSettings((prev) => ({ ...prev, animationsEnabled: checked }))}
-            label="Animações"
-            description="Desative para uma experiência mais estática."
-          />
+          <Toggle checked={theme === 'dark'} onChange={toggleTheme} label="Modo escuro" description="Alterne entre os temas claro e escuro." />
+          <Toggle checked={settings.animationsEnabled} onChange={(checked) => updateSettings((prev) => ({ ...prev, animationsEnabled: checked }))} label="Animações" description="Desative para uma experiência mais estática." />
         </div>
       </section>
 
       <section className="flex flex-col gap-1">
         <SectionTitle icon={<Bell size={14} />}>Notificações</SectionTitle>
-        <Toggle
-          checked={settings.notificationsEnabled && currentPermission === 'granted'}
-          onChange={handleNotificationsToggle}
-          label="Notificações do navegador"
-          description="Receba um aviso quando uma sessão terminar."
-        />
+        <Toggle checked={settings.notificationsEnabled && currentPermission === 'granted'} onChange={handleNotificationsToggle} label="Notificações do navegador" description="Receba um aviso quando uma sessão terminar." />
         {notice && <p className="text-xs text-(--color-danger) mt-1">{notice}</p>}
       </section>
 
       <section className="flex flex-col gap-1">
-        <SectionTitle icon={<Moon size={14} />}>Dados</SectionTitle>
-        <ConfirmAction
-          label="Limpar histórico"
-          confirmLabel="Apagar todo o histórico de sessões? Essa ação não pode ser desfeita."
-          onConfirm={clearHistory}
-        />
+        <SectionTitle icon={<Trash2 size={14} />}>Dados</SectionTitle>
+        <ConfirmAction label="Limpar histórico" confirmLabel="Apagar todo o histórico de sessões? Essa ação não pode ser desfeita." onConfirm={clearHistory} />
       </section>
     </div>
   );

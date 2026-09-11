@@ -2,15 +2,14 @@ import { useCallback, useEffect, useRef } from 'react';
 
 type Phase = 'inhale' | 'hold' | 'exhale';
 
-const FREQ_START = 220; // Hz — low, calm tone on inhale start
-const FREQ_PEAK = 330; // Hz — reached at the top of the inhale / through hold
-const FREQ_END = 180; // Hz — settles low again by the end of the exhale
+const FREQ_START = 220;
+const FREQ_PEAK = 330;
+const FREQ_END = 180;
 
 /**
  * Produces a real, audible breathing tone using the Web Audio API (no
  * external audio files required). The tone glides upward while inhaling,
- * holds steady, then glides back down while exhaling — an audible cue that
- * mirrors the visual animation.
+ * holds steady, then glides back down while exhaling.
  */
 export function useBreathingSound() {
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -38,7 +37,7 @@ export function useBreathingSound() {
         try {
           osc.stop();
         } catch {
-          // already stopped — ignore
+          // already stopped
         }
       }, 200);
     }

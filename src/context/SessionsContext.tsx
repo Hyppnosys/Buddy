@@ -35,11 +35,7 @@ export function SessionsProvider({ children }: { children: ReactNode }) {
     () => ({
       sessions,
       recordSession: (input) => {
-        const session: Session = {
-          id: createId(),
-          endedAt: new Date().toISOString(),
-          ...input,
-        };
+        const session: Session = { id: createId(), endedAt: new Date().toISOString(), ...input };
         setSessions((prev) => [session, ...prev].slice(0, 500));
       },
       clearHistory: () => setSessions([]),
