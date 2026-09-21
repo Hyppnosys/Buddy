@@ -13,10 +13,28 @@ function PersonSilhouette({ size = 130 }: { size?: number }) {
           light and dark mode, matching the mascot's photographed stages. */}
       <circle cx="70" cy="70" r="66" fill="#E9F2E6" />
       <ellipse cx="70" cy="118" rx="30" ry="6" fill="#24332A" opacity="0.08" />
-      <circle cx="70" cy="46" r="16" fill="#3F6B58" />
-      <path d="M46 116c-2-28 6-48 24-48s26 20 24 48c-16 6-32 6-48 0Z" fill="#3F6B58" />
-      <path d="M52 58c-8 6-12 15-11 25" stroke="#3F6B58" strokeWidth="8" strokeLinecap="round" fill="none" />
-      <path d="M88 58c8 6 12 15 11 25" stroke="#3F6B58" strokeWidth="8" strokeLinecap="round" fill="none" />
+
+      {/* seated, cross-legged, meditating */}
+      <path d="M40 108c-6-10-4-20 6-24 8-3 14 2 16 8" fill="#3F6B58" stroke="#24332A" strokeWidth="2" />
+      <path d="M100 108c6-10 4-20-6-24-8-3-14 2-16 8" fill="#3F6B58" stroke="#24332A" strokeWidth="2" />
+      <ellipse cx="70" cy="112" rx="9" ry="7" fill="#3F6B58" stroke="#24332A" strokeWidth="2" />
+
+      <path d="M42 100c-4-24 8-42 28-42s32 18 28 42c-16 8-40 8-56 0Z" fill="#3F6B58" stroke="#24332A" strokeWidth="2" />
+      <ellipse cx="70" cy="88" rx="14" ry="18" fill="white" opacity="0.9" />
+
+      <path d="M44 76c-8 6-12 14-10 22" stroke="#3F6B58" strokeWidth="9" strokeLinecap="round" fill="none" />
+      <path d="M96 76c8 6 12 14 10 22" stroke="#3F6B58" strokeWidth="9" strokeLinecap="round" fill="none" />
+      <circle cx="34" cy="99" r="6.5" fill="#3F6B58" stroke="#24332A" strokeWidth="1.6" />
+      <circle cx="106" cy="99" r="6.5" fill="#3F6B58" stroke="#24332A" strokeWidth="1.6" />
+
+      <circle cx="70" cy="42" r="22" fill="#3F6B58" stroke="#24332A" strokeWidth="2" />
+      <ellipse cx="70" cy="49" rx="13" ry="10" fill="white" opacity="0.9" />
+      <path d="M62 45q2 4 4 0" stroke="#24332A" strokeWidth="2" strokeLinecap="round" fill="none" />
+      <path d="M74 45q2 4 4 0" stroke="#24332A" strokeWidth="2" strokeLinecap="round" fill="none" />
+      <path d="M64 52c3 3 9 3 12 0" stroke="#24332A" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+      <ellipse cx="58" cy="50" rx="5" ry="3.5" fill="#F5B9A6" opacity="0.7" />
+      <ellipse cx="82" cy="50" rx="5" ry="3.5" fill="#F5B9A6" opacity="0.7" />
+      <path d="M62 22c3-6 13-6 16 0" stroke="#24332A" strokeWidth="2.4" strokeLinecap="round" fill="none" />
     </svg>
   );
 }
