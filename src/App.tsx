@@ -24,14 +24,14 @@ import { Friends } from './pages/Friends';
 import { Mascot } from './pages/Mascot';
 import { Profile } from './pages/Profile';
 import { Settings } from './pages/Settings';
+import type { ReactNode } from 'react';
 
 /**
- * These providers hold data that belongs to the logged-in user (sessions,
- * journal, check-ins, friends, mascot). Keying on the user id forces a clean
- * remount — and therefore a fresh read from scoped localStorage — whenever
- * someone logs in, logs out, or switches accounts on the same device.
+ * These providers hold data that belongs to the logged-in user. Keying on
+ * the user id forces a clean remount (fresh read from scoped localStorage)
+ * whenever someone logs in, logs out, or switches accounts on this device.
  */
-function UserScopedProviders({ children }: { children: React.ReactNode }) {
+function UserScopedProviders({ children }: { children: ReactNode }) {
   const { currentUser } = useAuth();
   return (
     <SessionsProvider key={currentUser?.id ?? 'anon'}>

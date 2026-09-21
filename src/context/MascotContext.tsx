@@ -9,34 +9,41 @@ const DEFAULT_MASCOT: MascotState = {
   xp: 0,
   log: [],
   sharedWithFriendIds: [],
-  color: '#3F6B58',
 };
 
+// Three real stages — bebê (hatchling) → jovem (young) → adulto (grown) —
+// each with its own distinct artwork. There used to be a 4th "egg" stage
+// below "hatchling" that reused the exact same image as hatchling; reaching
+// it produced zero visible change, which is what made evolution look broken.
+// Removing it means every stage transition now shows a different mascot.
 export const STAGE_LABEL: Record<MascotStage, string> = {
-  egg: 'Recém-nascido',
-  hatchling: 'Filhote',
+  hatchling: 'Bebê',
   young: 'Jovem',
   grown: 'Adulto',
 };
 
+// Bebê starts at 0 (immediate), Jovem at 20 XP, Adulto at 60 XP — the
+// explicit marks requested, mapped onto the system's 3 existing stages
+// (there's no 4th visual stage for the "adulto completamente evoluído"
+// milestone mentioned alongside these, since the current mascot only has
+// 3 illustrated stages and adding a new one would mean changing its
+// states/artwork, which was explicitly out of scope for this pass).
 export const STAGE_THRESHOLDS: Record<MascotStage, number> = {
-  egg: 0,
-  hatchling: 10,
-  young: 30,
-  grown: 70,
+  hatchling: 0,
+  young: 20,
+  grown: 60,
 };
 
 export function stageForXp(xp: number): MascotStage {
   if (xp >= STAGE_THRESHOLDS.grown) return 'grown';
   if (xp >= STAGE_THRESHOLDS.young) return 'young';
-  if (xp >= STAGE_THRESHOLDS.hatchling) return 'hatchling';
-  return 'egg';
+  return 'hatchling';
 }
 
 export function nextStageInfo(xp: number): { stage: MascotStage; xpToGo: number } | null {
   const stage = stageForXp(xp);
   if (stage === 'grown') return null;
-  const order: MascotStage[] = ['egg', 'hatchling', 'young', 'grown'];
+  const order: MascotStage[] = ['hatchling', 'young', 'grown'];
   const next = order[order.indexOf(stage) + 1];
   return { stage: next, xpToGo: STAGE_THRESHOLDS[next] - xp };
 }
@@ -46,7 +53,6 @@ interface MascotContextValue {
   stage: MascotStage;
   addActivity: (reason: string, points: number, by?: string) => void;
   renameMascot: (name: string) => void;
-  setMascotColor: (color: string) => void;
   toggleShareWithFriend: (friendId: string) => void;
 }
 
@@ -72,7 +78,6 @@ export function MascotProvider({ children }: { children: ReactNode }) {
         setMascot((prev) => ({ ...prev, xp: prev.xp + points, log: [entry, ...prev.log].slice(0, 100) }));
       },
       renameMascot: (name) => setMascot((prev) => ({ ...prev, name: name.trim() || prev.name })),
-      setMascotColor: (color) => setMascot((prev) => ({ ...prev, color })),
       toggleShareWithFriend: (friendId) =>
         setMascot((prev) => ({
           ...prev,

@@ -1,9 +1,3 @@
-/**
- * Thin wrapper around localStorage so that the rest of the app never touches
- * `window.localStorage` directly. This is the seam where a future backend
- * (REST API + PostgreSQL) could be swapped in without touching consumers.
- */
-
 const PREFIX = 'buddy:';
 
 export function scopedKey(base: string, userId: string | null): string {

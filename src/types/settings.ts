@@ -2,7 +2,7 @@ export type Theme = 'light' | 'dark';
 
 export interface SoundSettings {
   enabled: boolean;
-  volume: number; // 0 to 1
+  volume: number;
   activeSoundId: string | null;
 }
 

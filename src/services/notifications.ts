@@ -17,7 +17,7 @@ export function sendNotification(title: string, body: string): void {
   if (!isNotificationSupported()) return;
   if (Notification.permission !== 'granted') return;
   try {
-    new Notification(title, { body, icon: '/pwa-icon.svg' });
+    new Notification(title, { body, icon: '/favicon.png' });
   } catch (error) {
     console.warn('[notifications] Falha ao exibir notificação.', error);
   }

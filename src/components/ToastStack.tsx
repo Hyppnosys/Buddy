@@ -3,7 +3,6 @@ import { useToast } from '../hooks/useToast';
 
 export function ToastStack() {
   const { toasts, dismissToast } = useToast();
-
   if (toasts.length === 0) return null;
 
   return (
@@ -20,9 +19,7 @@ export function ToastStack() {
           </span>
           <div className="flex-1 min-w-0">
             <p className="font-semibold text-sm">{toast.title}</p>
-            {toast.description && (
-              <p className="text-sm text-(--color-ink-muted) mt-0.5">{toast.description}</p>
-            )}
+            {toast.description && <p className="text-sm text-(--color-ink-muted) mt-0.5">{toast.description}</p>}
           </div>
           <button
             onClick={() => dismissToast(toast.id)}

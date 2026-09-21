@@ -7,15 +7,12 @@ export interface User {
   createdAt: string;
 }
 
-/** Safe-to-share projection of a User, used for search results and friend
- * lists so we never leak email or other private fields to other accounts. */
 export interface PublicUser {
   id: string;
   name: string;
   avatarDataUrl: string | null;
 }
 
-/** Stored alongside the user record. Mock-only: plain text, local device only. */
 export interface StoredCredential {
   userId: string;
   email: string;
