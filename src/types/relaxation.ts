@@ -15,6 +15,5 @@ export interface Sound {
   id: string;
   name: string;
   icon: string;
-  /** Path to an audio file. Left empty until real assets are added. */
   src: string | null;
 }

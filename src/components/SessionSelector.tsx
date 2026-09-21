@@ -20,11 +20,7 @@ const ACTIVE_CLASSES: Record<SessionType, string> = {
 
 export function SessionSelector({ value, onChange, disabled }: SessionSelectorProps) {
   return (
-    <div
-      role="tablist"
-      aria-label="Selecionar tipo de sessão"
-      className="inline-flex items-center gap-1 p-1 rounded-full bg-(--color-surface-alt)"
-    >
+    <div role="tablist" aria-label="Selecionar tipo de sessão" className="inline-flex items-center gap-1 p-1 rounded-full bg-(--color-surface-alt)">
       {OPTIONS.map((opt) => {
         const isActive = value === opt.type;
         return (

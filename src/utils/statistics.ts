@@ -1,5 +1,4 @@
-import type { Session } from '../types/session';
-import type { Statistics } from '../types/session';
+import type { Session, Statistics } from '../types/session';
 import { isSameDay, startOfWeek } from './time';
 
 function completedFocusSessions(sessions: Session[]): Session[] {
@@ -24,22 +23,11 @@ export function calculateStatistics(sessions: Session[]): Statistics {
   ).length;
 
   const totalFocusMinutes = focusSessions.reduce((sum, s) => sum + s.durationMinutes, 0);
-
   const currentStreak = calculateStreak(focusSessions);
 
-  return {
-    sessionsToday,
-    focusMinutesToday,
-    sessionsThisWeek,
-    totalFocusMinutes,
-    currentStreak,
-  };
+  return { sessionsToday, focusMinutesToday, sessionsThisWeek, totalFocusMinutes, currentStreak };
 }
 
-/**
- * Counts consecutive days (ending today or yesterday) with at least one
- * completed focus session. Breaks as soon as a day is skipped.
- */
 export function calculateStreak(focusSessions: Session[]): number {
   if (focusSessions.length === 0) return 0;
 
@@ -53,9 +41,7 @@ export function calculateStreak(focusSessions: Session[]): number {
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-
   const cursor = new Date(today);
-  // If nothing done today yet, the streak can still count from yesterday.
   if (!daysWithFocus.has(cursor.getTime())) {
     cursor.setDate(cursor.getDate() - 1);
   }
@@ -65,7 +51,6 @@ export function calculateStreak(focusSessions: Session[]): number {
     streak += 1;
     cursor.setDate(cursor.getDate() - 1);
   }
-
   return streak;
 }
 
@@ -74,13 +59,11 @@ export function groupSessionsByDay(sessions: Session[]): Map<string, Session[]> 
   const sorted = [...sessions].sort(
     (a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
   );
-
   for (const session of sorted) {
     const key = new Date(session.endedAt).toDateString();
     const existing = groups.get(key) ?? [];
     existing.push(session);
     groups.set(key, existing);
   }
-
   return groups;
 }

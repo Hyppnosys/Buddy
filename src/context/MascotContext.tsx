@@ -9,7 +9,6 @@ const DEFAULT_MASCOT: MascotState = {
   xp: 0,
   log: [],
   sharedWithFriendIds: [],
-  color: '#3F6B58',
 };
 
 export const STAGE_LABEL: Record<MascotStage, string> = {
@@ -46,7 +45,6 @@ interface MascotContextValue {
   stage: MascotStage;
   addActivity: (reason: string, points: number, by?: string) => void;
   renameMascot: (name: string) => void;
-  setMascotColor: (color: string) => void;
   toggleShareWithFriend: (friendId: string) => void;
 }
 
@@ -72,7 +70,6 @@ export function MascotProvider({ children }: { children: ReactNode }) {
         setMascot((prev) => ({ ...prev, xp: prev.xp + points, log: [entry, ...prev.log].slice(0, 100) }));
       },
       renameMascot: (name) => setMascot((prev) => ({ ...prev, name: name.trim() || prev.name })),
-      setMascotColor: (color) => setMascot((prev) => ({ ...prev, color })),
       toggleShareWithFriend: (friendId) =>
         setMascot((prev) => ({
           ...prev,

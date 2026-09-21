@@ -2,22 +2,15 @@ import { Play, Square, Volume2, VolumeX } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import type { RelaxationExercise as RelaxationExerciseConfig } from '../types/relaxation';
 import { useBreathingExercise } from '../hooks/useBreathingExercise';
-import { useBreathingSound } from '../hooks/useBreathingSound';
 import { useSettings } from '../hooks/useSettings';
 import { useMascot } from '../hooks/useMascot';
-import { MascotAvatar } from './MascotAvatar';
 import { Button } from './Button';
 
 interface RelaxationExerciseProps {
   exercise: RelaxationExerciseConfig;
 }
 
-const PHASE_LABEL: Record<string, string> = {
-  inhale: 'Inspira',
-  hold: 'Segura',
-  exhale: 'Expira',
-};
-
+const PHASE_LABEL: Record<string, string> = { inhale: 'Inspira', hold: 'Segura', exhale: 'Expira' };
 const STEPS: { key: 'inhale' | 'hold' | 'exhale'; label: string }[] = [
   { key: 'inhale', label: 'Inspira' },
   { key: 'hold', label: 'Segura' },
@@ -26,24 +19,15 @@ const STEPS: { key: 'inhale' | 'hold' | 'exhale'; label: string }[] = [
 
 export function RelaxationExercise({ exercise }: RelaxationExerciseProps) {
   const { settings, updateSettings } = useSettings();
-  const { mascot, addActivity } = useMascot();
-  const sound = useBreathingSound();
+  const { addActivity } = useMascot();
   const creditedRef = useRef(false);
 
   const { isActive, currentPhase, secondsLeft, cyclesCompleted, start, stop } = useBreathingExercise({
     phases: exercise.phases,
-    onPhaseStart: (phase) => sound.playPhase(phase.key, phase.seconds),
   });
 
   const soundOn = settings.sound.enabled;
-
-  useEffect(() => {
-    sound.setEnabled(isActive && soundOn);
-  }, [isActive, soundOn, sound]);
-
-  useEffect(() => {
-    sound.setVolume(settings.sound.volume);
-  }, [settings.sound.volume, sound]);
+  const hasSoundSelected = settings.sound.activeSoundId !== null;
 
   useEffect(() => {
     if (isActive) {
@@ -65,14 +49,16 @@ export function RelaxationExercise({ exercise }: RelaxationExerciseProps) {
         ? { animation: `breathe-out ${seconds}s ease-in-out forwards` }
         : { transform: 'scale(1)' };
 
+  // The background sound used here is whichever sound the user selected in
+  // the "Sons" tab (settings.sound) — this screen has no sound of its own.
+  // Toggling it here just flips the same shared enabled flag; the actual
+  // playback is handled centrally by <AmbientSoundEngine /> in AppLayout.
   const toggleSound = () => {
     updateSettings((prev) => ({ ...prev, sound: { ...prev.sound, enabled: !prev.sound.enabled } }));
   };
 
   return (
     <div className="flex flex-col items-center gap-6 py-4">
-      {/* Inspira → Segura → Expira stepper: always visible so the user knows
-          exactly what the current and upcoming steps are. */}
       <div className="flex items-center gap-1.5" role="img" aria-label="Sequência: Inspira, Segura, Expira">
         {STEPS.map((step, i) => (
           <div key={step.key} className="flex items-center gap-1.5">
@@ -88,16 +74,9 @@ export function RelaxationExercise({ exercise }: RelaxationExerciseProps) {
       </div>
 
       <div className="relative w-64 h-64 flex items-center justify-center">
-        <div
-          key={isActive ? phaseKey : 'idle'}
-          className="absolute inset-0 rounded-full bg-(--color-relax-soft)"
-          style={animationStyle}
-        />
+        <div key={isActive ? phaseKey : 'idle'} className="absolute inset-0 rounded-full bg-(--color-relax-soft)" style={animationStyle} />
         <div className="relative z-10 flex flex-col items-center justify-center gap-1">
-          <MascotAvatar stage="young" color={mascot.color} size={84} animated={isActive} />
-          <span className="font-display text-lg font-semibold text-(--color-relax)">
-            {isActive ? PHASE_LABEL[phaseKey] : 'Pronto?'}
-          </span>
+          <span className="font-display text-lg font-semibold text-(--color-relax)">{isActive ? PHASE_LABEL[phaseKey] : 'Pronto?'}</span>
           <span className="text-3xl font-display tabular-nums">
             {isActive ? secondsLeft : exercise.phases[0]?.seconds}
             <span className="text-base">s</span>
@@ -107,9 +86,7 @@ export function RelaxationExercise({ exercise }: RelaxationExerciseProps) {
 
       <div className="text-center min-h-5">
         <p className="text-sm text-(--color-ink-muted)">
-          {isActive
-            ? `Ciclos completos: ${cyclesCompleted}`
-            : 'Um exercício simples para acalmar a mente antes ou depois do foco.'}
+          {isActive ? `Ciclos completos: ${cyclesCompleted}` : 'Um exercício simples para acalmar a mente antes ou depois do foco.'}
         </p>
       </div>
 
@@ -123,15 +100,15 @@ export function RelaxationExercise({ exercise }: RelaxationExerciseProps) {
         </Button>
       )}
 
-      {/* Sound control sits right below the breathing area, as requested. */}
       <button
         onClick={toggleSound}
+        disabled={!hasSoundSelected}
         aria-pressed={soundOn}
-        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-colors
+        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-colors disabled:opacity-40 disabled:pointer-events-none
           ${soundOn ? 'border-(--color-relax) bg-(--color-relax-soft) text-(--color-relax)' : 'border-(--color-border) text-(--color-ink-muted)'}`}
       >
         {soundOn ? <Volume2 size={16} /> : <VolumeX size={16} />}
-        Som da respiração: {soundOn ? 'ativado' : 'desativado'}
+        {hasSoundSelected ? `Som ambiente: ${soundOn ? 'ativado' : 'desativado'}` : 'Escolha um som na aba Sons'}
       </button>
     </div>
   );

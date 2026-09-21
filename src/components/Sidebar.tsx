@@ -33,22 +33,11 @@ const NAV_ITEMS = [
 
 function Avatar({ name, avatarDataUrl, size = 36 }: { name: string; avatarDataUrl: string | null; size?: number }) {
   if (avatarDataUrl) {
-    return (
-      <img
-        src={avatarDataUrl}
-        alt=""
-        className="rounded-full object-cover shrink-0"
-        style={{ width: size, height: size }}
-      />
-    );
+    return <img src={avatarDataUrl} alt="" className="rounded-full object-cover shrink-0" style={{ width: size, height: size }} />;
   }
   const initial = name.trim().charAt(0).toUpperCase() || '?';
   return (
-    <div
-      className="rounded-full bg-(--color-focus) text-white flex items-center justify-center font-semibold shrink-0"
-      style={{ width: size, height: size }}
-      aria-hidden
-    >
+    <div className="rounded-full bg-(--color-focus) text-white flex items-center justify-center font-semibold shrink-0" style={{ width: size, height: size }} aria-hidden>
       {initial}
     </div>
   );
@@ -98,15 +87,10 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         >
           <ShieldOff size={18} />
           Modo sem distrações
-          {settings.distractionFreeEnabled && (
-            <span className="ml-auto w-2 h-2 rounded-full bg-(--color-long)" />
-          )}
+          {settings.distractionFreeEnabled && <span className="ml-auto w-2 h-2 rounded-full bg-(--color-long)" />}
         </button>
 
-        <button
-          onClick={toggleTheme}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-(--color-ink-muted) hover:text-(--color-ink) hover:bg-(--color-surface-alt) transition-colors"
-        >
+        <button onClick={toggleTheme} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-(--color-ink-muted) hover:text-(--color-ink) hover:bg-(--color-surface-alt) transition-colors">
           {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
           {theme === 'dark' ? 'Modo claro' : 'Modo escuro'}
         </button>
@@ -123,11 +107,7 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           Configurações
         </NavLink>
 
-        <NavLink
-          to="/app/perfil"
-          onClick={onNavigate}
-          className="flex items-center gap-3 px-3 py-2 mt-1 rounded-xl hover:bg-(--color-surface-alt) transition-colors"
-        >
+        <NavLink to="/app/perfil" onClick={onNavigate} className="flex items-center gap-3 px-3 py-2 mt-1 rounded-xl hover:bg-(--color-surface-alt) transition-colors">
           <Avatar name={currentUser?.name ?? '?'} avatarDataUrl={currentUser?.avatarDataUrl ?? null} />
           <div className="min-w-0">
             <p className="text-sm font-semibold truncate">{currentUser?.name}</p>
@@ -135,10 +115,7 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           </div>
         </NavLink>
 
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-(--color-danger) hover:bg-(--color-danger)/10 transition-colors"
-        >
+        <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-(--color-danger) hover:bg-(--color-danger)/10 transition-colors">
           <LogOut size={18} />
           Sair
         </button>
@@ -147,7 +124,6 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-/** Desktop-only fixed sidebar. Renders nothing (0 width) below the lg breakpoint. */
 export function Sidebar() {
   return (
     <aside className="hidden lg:flex flex-col w-64 shrink-0 border-r border-(--color-border) bg-(--color-surface) h-screen sticky top-0">
@@ -156,25 +132,16 @@ export function Sidebar() {
   );
 }
 
-/** Mobile-only slide-in drawer, rendered as a fixed overlay so it never affects page layout/flow. */
 export function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   if (!open) return null;
   return (
     <div className="lg:hidden fixed inset-0 z-50">
-      <button
-        aria-label="Fechar menu"
-        className="absolute inset-0 bg-black/30 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <button aria-label="Fechar menu" className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
       <div className="absolute left-0 top-0 h-full w-72 max-w-[85vw] bg-(--color-surface) shadow-(--shadow-lift) animate-pop-in">
         <div className="flex items-center gap-2 px-5 h-16 font-display font-semibold text-lg border-b border-(--color-border)">
           <Logo size={32} />
           Buddy
-          <button
-            onClick={onClose}
-            aria-label="Fechar menu"
-            className="ml-auto p-2 rounded-full hover:bg-(--color-surface-alt) text-(--color-ink-muted)"
-          >
+          <button onClick={onClose} aria-label="Fechar menu" className="ml-auto p-2 rounded-full hover:bg-(--color-surface-alt) text-(--color-ink-muted)">
             <X size={18} />
           </button>
         </div>

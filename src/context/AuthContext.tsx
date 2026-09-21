@@ -10,7 +10,6 @@ interface AuthContextValue {
   logIn: (values: AuthFormValues) => { ok: true } | { ok: false; error: string };
   logOut: () => void;
   updateProfile: (updater: (prev: User) => User) => void;
-  /** Searches real registered accounts by name or e-mail (never returns the caller). */
   searchUsers: (query: string) => PublicUser[];
 }
 
@@ -22,10 +21,9 @@ function createId(): string {
 
 /**
  * Validates that an e-mail has a well-formed structure (text before the @,
- * a domain, a dot-separated extension — so "user@domain" or "user@.com"
- * fail) AND that the domain belongs to a real, well-known provider (see
- * utils/emailProviders.ts). This blocks made-up domains like "user@kkk.com"
- * that pass a plain format check but aren't a real e-mail service.
+ * a domain, a dot-separated extension) AND that the domain belongs to a
+ * real, well-known provider (see utils/emailProviders.ts). This blocks
+ * made-up domains like "user@kkk.com" that pass a plain format check.
  */
 export function isValidEmail(email: string): boolean {
   const wellFormed = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);

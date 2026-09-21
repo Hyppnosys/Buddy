@@ -10,7 +10,6 @@ import { useAuth } from './useAuth';
 import { useMascot } from './useMascot';
 
 interface PersistedTimerState extends TimerSnapshot {
-  /** ISO timestamp the active/paused session originally started at. */
   startedAt: string;
 }
 
@@ -50,15 +49,10 @@ function nextSessionType(
 ): { type: SessionType; cycleIndex: number } {
   if (current === 'focus') {
     const nextIndex = cycleIndex + 1;
-    if (nextIndex >= sessionsBeforeLongBreak) {
-      return { type: 'longBreak', cycleIndex: nextIndex };
-    }
+    if (nextIndex >= sessionsBeforeLongBreak) return { type: 'longBreak', cycleIndex: nextIndex };
     return { type: 'shortBreak', cycleIndex: nextIndex };
   }
-  if (current === 'longBreak') {
-    return { type: 'focus', cycleIndex: 0 };
-  }
-  // shortBreak -> focus, cycle position unchanged
+  if (current === 'longBreak') return { type: 'focus', cycleIndex: 0 };
   return { type: 'focus', cycleIndex };
 }
 
@@ -78,24 +72,20 @@ export function useTimer() {
 
   const [, forceTick] = useState(0);
 
-  // Persist on every change.
   useEffect(() => {
     writeStorage(timerStateKey, state);
   }, [state, timerStateKey]);
 
-  // Reconcile with wall-clock time on mount (tab was closed/backgrounded).
   useEffect(() => {
     setState((prev) => {
       if (prev.status !== 'running' || prev.endTimestamp === null) return prev;
       const remaining = secondsUntil(prev.endTimestamp);
       if (remaining > 0) return { ...prev, remainingSeconds: remaining };
-      // Session fully elapsed while away: mark completed, UI effect below will finalize.
       return { ...prev, remainingSeconds: 0 };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Ticking: recompute remaining time once per second while running.
   useEffect(() => {
     if (state.status !== 'running' || state.endTimestamp === null) return;
     const id = window.setInterval(() => {
@@ -110,9 +100,6 @@ export function useTimer() {
 
   const finishSession = useCallback(
     (outcome: 'completed' | 'skipped') => {
-      // Read current state directly rather than inside the setState updater,
-      // so side effects (recording a session, showing a toast) never fire
-      // from within another component's render/commit cycle.
       const prev = stateRef.current;
 
       recordSession({
@@ -128,13 +115,9 @@ export function useTimer() {
         const description = isFocus ? 'Hora de fazer uma pausa.' : 'Hora de voltar ao foco.';
         if (!settings.distractionFreeEnabled) {
           showToast(title, description);
-          if (settings.notificationsEnabled) {
-            sendNotification(title, description);
-          }
+          if (settings.notificationsEnabled) sendNotification(title, description);
         }
-        if (isFocus) {
-          addActivity('Sessão de foco concluída', 2);
-        }
+        if (isFocus) addActivity('Sessão de foco concluída', 2);
       }
 
       const { type: nextType, cycleIndex } = nextSessionType(
@@ -160,7 +143,6 @@ export function useTimer() {
     [recordSession, settings.notificationsEnabled, settings.distractionFreeEnabled, timerSettings, showToast, addActivity]
   );
 
-  // Auto-finish when the countdown hits zero.
   useEffect(() => {
     if (state.status === 'running' && state.remainingSeconds <= 0) {
       finishSession('completed');
@@ -169,7 +151,7 @@ export function useTimer() {
 
   const start = useCallback(() => {
     setState((prev) => {
-      if (prev.status === 'running') return prev; // never allow two timers at once
+      if (prev.status === 'running') return prev;
       const now = Date.now();
       const remaining = prev.status === 'paused' ? prev.remainingSeconds : prev.durationSeconds;
       return {
@@ -185,12 +167,7 @@ export function useTimer() {
   const pause = useCallback(() => {
     setState((prev) => {
       if (prev.status !== 'running' || prev.endTimestamp === null) return prev;
-      return {
-        ...prev,
-        status: 'paused',
-        remainingSeconds: secondsUntil(prev.endTimestamp),
-        endTimestamp: null,
-      };
+      return { ...prev, status: 'paused', remainingSeconds: secondsUntil(prev.endTimestamp), endTimestamp: null };
     });
   }, []);
 
@@ -206,7 +183,6 @@ export function useTimer() {
 
   const skip = useCallback(() => {
     if (stateRef.current.status === 'idle' && stateRef.current.remainingSeconds === stateRef.current.durationSeconds) {
-      // Nothing has run yet; just advance without logging a session.
       setState((prev) => {
         const { type: nextType, cycleIndex } = nextSessionType(
           prev.sessionType,
@@ -249,7 +225,6 @@ export function useTimer() {
     [timerSettings]
   );
 
-  // Keep the idle timer's duration in sync if the user edits settings.
   useEffect(() => {
     setState((prev) => {
       if (prev.status !== 'idle') return prev;
@@ -259,8 +234,7 @@ export function useTimer() {
     });
   }, [timerSettings]);
 
-  const progress =
-    state.durationSeconds > 0 ? 1 - state.remainingSeconds / state.durationSeconds : 0;
+  const progress = state.durationSeconds > 0 ? 1 - state.remainingSeconds / state.durationSeconds : 0;
 
   return {
     status: state.status as TimerStatus,
