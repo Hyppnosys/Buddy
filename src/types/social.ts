@@ -8,7 +8,7 @@ export interface Friend {
   addedAt: string;
 }
 
-export type MascotStage = 'egg' | 'hatchling' | 'young' | 'grown';
+export type MascotStage = 'hatchling' | 'young' | 'grown';
 
 export interface MascotActivityLog {
   id: string;

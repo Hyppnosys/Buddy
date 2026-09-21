@@ -35,7 +35,7 @@ export function CheckIn() {
   const handleSubmit = () => {
     if (!mood) return;
     submitCheckIn({ mood, sleepQuality, energyLevel, gratitude: gratitude.trim() });
-    addActivity('Check-in diário', 1);
+    addActivity('Check-in diário', 3);
   };
 
   return (

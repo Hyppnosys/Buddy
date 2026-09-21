@@ -117,7 +117,7 @@ export function useTimer() {
           showToast(title, description);
           if (settings.notificationsEnabled) sendNotification(title, description);
         }
-        if (isFocus) addActivity('Sessão de foco concluída', 2);
+        if (isFocus) addActivity('Sessão de foco concluída', 5);
       }
 
       const { type: nextType, cycleIndex } = nextSessionType(

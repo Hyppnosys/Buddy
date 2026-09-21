@@ -17,7 +17,7 @@ export function Journal() {
   const handleSubmit = () => {
     if (!content.trim() || !mood) return;
     addEntry(content.trim(), mood);
-    addActivity('Registro no diário', 1);
+    addActivity('Registro no diário', 2);
     setContent('');
     setMood(null);
   };

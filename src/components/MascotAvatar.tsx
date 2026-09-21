@@ -6,14 +6,12 @@ interface MascotAvatarProps {
   stage: MascotStage;
 }
 
-// All four stages use the same three pieces of real illustrated artwork,
-// in their original colors (no per-user color customization — the mascot
-// has one fixed, consistent appearance everywhere it appears). "egg"
-// (recém-nascido) reuses the hatchling art — the youngest-looking pose —
-// with a couple of floating "z"s layered on top to read as resting/
-// just-starting-out, rather than a separate, lower-quality hand-drawn image.
+// Three stages, three distinct real illustrations, in their original
+// brown/orange/cream colors — no per-user color customization, and no
+// stage silently reusing another stage's image (that was what made
+// evolution look broken: two stages sharing one picture meant crossing
+// that threshold produced no visible change at all).
 const STAGE_IMAGE: Record<MascotStage, string> = {
-  egg: '/mascot/hatchling.png',
   hatchling: '/mascot/hatchling.png',
   young: '/mascot/young.png',
   grown: '/mascot/grown.png',
@@ -21,7 +19,7 @@ const STAGE_IMAGE: Record<MascotStage, string> = {
 
 /**
  * The mascot is a friendly otter, illustrated with real artwork in its
- * original green palette, for all four evolution stages.
+ * original colors, for each of its three evolution stages.
  */
 export function MascotAvatar({ stage, size = 140, animated = true }: MascotAvatarProps) {
   return (
@@ -39,19 +37,6 @@ export function MascotAvatar({ stage, size = 140, animated = true }: MascotAvata
           animationDuration: '3.5s',
         }}
       />
-      {stage === 'egg' && (
-        <svg
-          viewBox="0 0 100 100"
-          width={size * 0.4}
-          height={size * 0.4}
-          className="absolute -top-1 -right-1 animate-soft-pulse"
-          style={{ animationDuration: '2.2s' }}
-          aria-hidden
-        >
-          <text x="46" y="52" fontSize="26" fill="#24332A" opacity="0.55" fontFamily="Fraunces, serif">z</text>
-          <text x="64" y="34" fontSize="18" fill="#24332A" opacity="0.4" fontFamily="Fraunces, serif">z</text>
-        </svg>
-      )}
     </div>
   );
 }

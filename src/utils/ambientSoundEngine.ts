@@ -11,7 +11,7 @@
  * breathing/relaxation screens both just read the same settings state).
  */
 
-export type AmbientSoundId = 'rain' | 'forest' | 'waves' | 'white-noise' | 'calm';
+export type AmbientSoundId = 'rain' | 'forest' | 'waves' | 'fireplace' | 'calm';
 
 interface ActiveGraph {
   id: AmbientSoundId;
@@ -69,19 +69,35 @@ function buildGraph(id: AmbientSoundId, context: AudioContext): ActiveGraph {
 
   switch (id) {
     case 'rain': {
+      // A light, calm drizzle — not a storm: narrower band (no low rumble,
+      // no harsh top-end hiss), lower overall level, and a slow, gentle
+      // amplitude flutter so it reads as soft, continuous rainfall rather
+      // than a wall of noise.
       const source = makeLoopingNoiseSource(context, 'white');
       const highpass = context.createBiquadFilter();
       highpass.type = 'highpass';
-      highpass.frequency.value = 1200;
+      highpass.frequency.value = 1800;
       const lowpass = context.createBiquadFilter();
       lowpass.type = 'lowpass';
-      lowpass.frequency.value = 6500;
+      lowpass.frequency.value = 4200;
       const gain = context.createGain();
-      gain.gain.value = 0.55;
-      source.connect(highpass).connect(lowpass).connect(gain).connect(output);
+      gain.gain.value = 0.22;
+      const flutter = context.createGain();
+      flutter.gain.value = 1;
+      const lfo = context.createOscillator();
+      lfo.type = 'sine';
+      lfo.frequency.value = 0.35;
+      const lfoDepth = context.createGain();
+      lfoDepth.gain.value = 0.12;
+      lfo.connect(lfoDepth).connect(flutter.gain);
+      lfo.start();
+      source.connect(highpass).connect(lowpass).connect(gain).connect(flutter).connect(output);
       source.start();
-      nodes.push(source, highpass, lowpass, gain);
-      stops.push(() => source.stop());
+      nodes.push(source, highpass, lowpass, gain, flutter, lfo, lfoDepth);
+      stops.push(() => {
+        source.stop();
+        lfo.stop();
+      });
       break;
     }
     case 'forest': {
@@ -147,17 +163,48 @@ function buildGraph(id: AmbientSoundId, context: AudioContext): ActiveGraph {
       });
       break;
     }
-    case 'white-noise': {
-      const source = makeLoopingNoiseSource(context, 'white');
-      const lowpass = context.createBiquadFilter();
-      lowpass.type = 'lowpass';
-      lowpass.frequency.value = 9000;
-      const gain = context.createGain();
-      gain.gain.value = 0.45;
-      source.connect(lowpass).connect(gain).connect(output);
-      source.start();
-      nodes.push(source, lowpass, gain);
-      stops.push(() => source.stop());
+    case 'fireplace': {
+      // Deliberately unlike rain: no continuous hiss at all. A very soft,
+      // warm low rumble (embers) plus sparse, irregular high-passed noise
+      // "pops" (crackling wood) — a clearly different listening experience.
+      const embers = makeLoopingNoiseSource(context, 'brown');
+      const embersLowpass = context.createBiquadFilter();
+      embersLowpass.type = 'lowpass';
+      embersLowpass.frequency.value = 220;
+      const embersGain = context.createGain();
+      embersGain.gain.value = 0.18;
+      embers.connect(embersLowpass).connect(embersGain).connect(output);
+      embers.start();
+      nodes.push(embers, embersLowpass, embersGain);
+      stops.push(() => embers.stop());
+
+      const crackleGain = context.createGain();
+      crackleGain.gain.value = 1;
+      crackleGain.connect(output);
+      let crackleTimer: number | null = null;
+      const scheduleCrackle = () => {
+        const pop = context.createBufferSource();
+        pop.buffer = noiseBuffer(context, 0.05, 'white');
+        const bandpass = context.createBiquadFilter();
+        bandpass.type = 'bandpass';
+        bandpass.frequency.value = 1400 + Math.random() * 2200;
+        bandpass.Q.value = 1.2;
+        const popGain = context.createGain();
+        const now = context.currentTime;
+        const peak = 0.12 + Math.random() * 0.16;
+        popGain.gain.setValueAtTime(0, now);
+        popGain.gain.linearRampToValueAtTime(peak, now + 0.005);
+        popGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08 + Math.random() * 0.05);
+        pop.connect(bandpass).connect(popGain).connect(crackleGain);
+        pop.start(now);
+        pop.stop(now + 0.2);
+        crackleTimer = window.setTimeout(scheduleCrackle, 220 + Math.random() * 900);
+      };
+      crackleTimer = window.setTimeout(scheduleCrackle, 400);
+      nodes.push(crackleGain);
+      stops.push(() => {
+        if (crackleTimer !== null) window.clearTimeout(crackleTimer);
+      });
       break;
     }
     case 'calm': {

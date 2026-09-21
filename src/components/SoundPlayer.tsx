@@ -1,8 +1,8 @@
-import { CloudRain, Pause, Play, Radio, Trees, Volume2, Waves, Wind } from 'lucide-react';
+import { CloudRain, Flame, Pause, Play, Trees, Volume2, Waves, Wind } from 'lucide-react';
 import { AMBIENT_SOUNDS } from '../utils/sounds';
 import { useSettings } from '../hooks/useSettings';
 
-const ICONS: Record<string, typeof CloudRain> = { CloudRain, Trees, Waves, Radio, Wind };
+const ICONS: Record<string, typeof CloudRain> = { CloudRain, Trees, Waves, Flame, Wind };
 
 export function SoundPlayer() {
   const { settings, updateSettings } = useSettings();
@@ -18,7 +18,7 @@ export function SoundPlayer() {
     <div className="flex flex-col gap-5">
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {AMBIENT_SOUNDS.map((s) => {
-          const Icon = ICONS[s.icon] ?? Radio;
+          const Icon = ICONS[s.icon] ?? Wind;
           const isActive = sound.activeSoundId === s.id;
           return (
             <button

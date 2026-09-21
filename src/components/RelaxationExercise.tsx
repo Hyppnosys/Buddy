@@ -33,7 +33,7 @@ export function RelaxationExercise({ exercise }: RelaxationExerciseProps) {
     if (isActive) {
       creditedRef.current = false;
     } else if (cyclesCompleted > 0 && !creditedRef.current) {
-      addActivity('Exercício de respiração', 1);
+      addActivity('Exercício de respiração', 3);
       creditedRef.current = true;
     }
   }, [isActive, cyclesCompleted, addActivity]);

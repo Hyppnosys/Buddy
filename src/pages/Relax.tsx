@@ -16,7 +16,7 @@ const BREATHING_EXERCISE: RelaxationExerciseConfig = {
   phases: [
     { key: 'inhale', label: 'Inspira', seconds: 4 },
     { key: 'hold', label: 'Segura', seconds: 4 },
-    { key: 'exhale', label: 'Expira', seconds: 6 },
+    { key: 'exhale', label: 'Expira', seconds: 4 },
   ],
 };
 
