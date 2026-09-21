@@ -49,10 +49,10 @@ Abra o endereço mostrado no terminal (normalmente `http://localhost:5173`).
 - **Relaxar** — respiração guiada 4-4-4 (Inspira → Segura → Expira, sem
   mascote na tela), yoga com 5 combos diferentes e 3 imagens por postura
   (frente/esquerda/direita), e sons ambientes reais tocando de fundo
-- **Sons** — 5 sons ambientes sintetizados (chuva leve, floresta, ondas,
-  lareira, ambiente calmo) com play/pause/volume que realmente funcionam; a
-  seleção feita aqui é o que toca durante a respiração e outras atividades
-  de relaxamento
+- **Sons** — 7 sons ambientes sintetizados (floresta, ondas, chuvisco na
+  janela, ruído branco, passarinhos, piano, árvores ao vento) com
+  play/pause/volume que realmente funcionam; a seleção feita aqui é o que
+  toca durante a respiração e outras atividades de relaxamento
 - **Estatísticas** — histórico completo de sessões
 - **Amigos** — busca real entre as contas cadastradas no dispositivo
 - **Mascote** — a lontra evolui (bebê → jovem → adulto) com pontos ganhos ao
@@ -78,8 +78,8 @@ src/
   types/        tipos TypeScript do domínio
   utils/        formatação de tempo, estatísticas, e-mail, sons, yoga
 public/
-  logo-otter.png       logo da lontra (imagem real, recolorida em verde — círculo
-                        completo, com margem igual nos 4 lados, sem cortes)
+  logo-otter.png       logo da lontra (imagem real, cor original laranja/azul —
+                        círculo completo, com margem igual nos 4 lados, sem cortes)
   mascot/*.png         3 fases do mascote (imagens reais, cores originais —
                         castanho/laranja/creme, não recoloridas)
 ```
@@ -107,17 +107,21 @@ public/
   chamam essa mesma função — nenhuma tela mantém seu próprio contador
   separado. Cada chamada é guardada contra duplicidade (ex.: um `ref` que
   impede creditar de novo antes de reiniciar a atividade).
-- **Logo circular sem cortes:** o arquivo `public/logo-otter.png` foi
-  recortado de novo a partir da arte de referência original, com margem
-  transparente igual nos 4 lados (o círculo já vinha meio colado na borda,
-  então a máscara CSS `rounded-full` acabava cortando o desenho). O
-  `Logo.tsx` também trocou `object-cover` por `object-contain`, que era a
-  causa raiz de o ícone aparecer "cortado"/quadrado — `cover` estica a
-  imagem para preencher o quadrado e deixa a máscara circular do CSS cortar
-  o que sobra. Também foram gerados `favicon.ico` (multi-resolução),
-  `apple-touch-icon.png`, `icon-192.png`/`icon-512.png` e um
-  `site.webmanifest` com `purpose: "any"`, para o ícone ficar nítido em
-  qualquer tamanho que o navegador/SO peça.
+- **Progressão mais longa:** os limiares de fase usam uma unidade de
+  referência X = 20 — Bebê começa em 0, Jovem exige 2X (40 pontos) e Adulto
+  exige 3X (60 pontos), contra 12/30 da versão anterior. Evoluir agora leva
+  bem mais tempo de uso real.
+- **Logo circular sem cortes, cor original:** o arquivo
+  `public/logo-otter.png` foi recortado de novo a partir da arte de
+  referência original, com margem transparente igual nos 4 lados (o círculo
+  já vinha meio colado na borda, então a máscara CSS `rounded-full` acabava
+  cortando o desenho), e o `Logo.tsx` trocou `object-cover` por
+  `object-contain` — essa era a causa raiz do ícone aparecer
+  "cortado"/quadrado. O formato/resolução ficaram assim definitivos; a cor
+  em si foi revertida para a paleta original (laranja/azul) da arte de
+  referência a pedido do usuário — a recoloração para verde foi descartada.
+  Também foram gerados `favicon.ico` (multi-resolução), `apple-touch-icon.png`,
+  `icon-192.png`/`icon-512.png` e um `site.webmanifest` com `purpose: "any"`.
 - **Respiração 4-4-4, determinística por tempo real:** o hook
   `useBreathingExercise` calcula a fase ativa a partir do tempo decorrido
   (`performance.now()`) módulo a duração total do ciclo (12s: 4+4+4), em vez
@@ -125,16 +129,21 @@ public/
   Inspira → Segura → Expira (na ordem exata do array `phases` em
   `Relax.tsx`) nunca desincroniza do texto, da animação ou do áudio.
 - **Sons ambientes reais:** como não há arquivos de áudio externos disponíveis
-  neste ambiente (nem é possível buscá-los pela rede), os 5 sons da aba
+  neste ambiente (nem é possível buscá-los pela rede), os 7 sons da aba
   "Sons" (`src/utils/ambientSoundEngine.ts`) são sintetizados ao vivo com a
   Web Audio API — ruído filtrado, osciladores e LFOs — e tocam em loop de
   verdade, com play/pause/volume/troca de som funcionando. A seleção fica
   centralizada em `settings.sound` e um único componente
   (`<AmbientSoundEngine />`, montado uma vez em `AppLayout`) mantém a
   reprodução sincronizada com essa seleção em qualquer tela, incluindo a
-  respiração — nenhuma tela tem um som fixo próprio. Floresta e Ambiente
-  calmo não foram alterados; a Chuva foi suavizada (banda mais estreita,
-  volume menor, sem o rumor grave que fazia parecer tempestade); o antigo
-  "Ruído branco" — que soava quase igual à chuva — foi substituído por
-  "Lareira", com uma textura claramente diferente (rumor grave baixinho +
-  estalos esparsos de lenha, sem nenhum chiado contínuo).
+  respiração — nenhuma tela tem um som fixo próprio. Floresta e Ondas não
+  foram tocados (aprovados como estavam). Chuva virou "Chuvisco na janela":
+  quase nenhum corpo contínuo, só pingos suaves e esparsos (tap curto e
+  filtrado), bem mais discreta que antes. Ruído branco recebeu um novo
+  áudio — banda larga, estável, sem flutuação nem pingos — claramente
+  diferente do chuvisco. A Lareira foi removida. Entraram três sons novos:
+  Passarinhos (cantos esparsos e suaves sobre quase silêncio), Piano
+  (notas isoladas e lentas de um acorde calmo, com decaimento longo) e
+  Árvores ao vento (ruído filtrado em médio-agudo com um flutter rápido e
+  irregular — duas LFOs em frequências diferentes — para lembrar folhas,
+  distinto do balanço lento das ondas).

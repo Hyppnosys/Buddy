@@ -22,10 +22,15 @@ export const STAGE_LABEL: Record<MascotStage, string> = {
   grown: 'Adulto',
 };
 
+// X = 20 is the reference unit: bebê starts at 0 (immediate), jovem needs
+// 2X and adulto needs 3X — a noticeably longer, more deliberate progression
+// than before (previously 12 / 30), so evolving feels like a real
+// milestone rather than something reached in one or two activities.
+const X = 20;
 export const STAGE_THRESHOLDS: Record<MascotStage, number> = {
   hatchling: 0,
-  young: 12,
-  grown: 30,
+  young: X * 2,
+  grown: X * 3,
 };
 
 export function stageForXp(xp: number): MascotStage {
