@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Search, UserPlus, Users, X } from 'lucide-react';
+import { Check, Search, UserPlus, Users, X } from 'lucide-react';
 import { Card } from '../components/Card';
 import { useFriends } from '../hooks/useFriends';
-import { useAuth } from '../hooks/useAuth';
 import type { PublicUser } from '../types/user';
 
 function PersonAvatar({ name, avatarDataUrl, color }: { name: string; avatarDataUrl: string | null; color?: string }) {
@@ -15,8 +14,8 @@ function PersonAvatar({ name, avatarDataUrl, color }: { name: string; avatarData
 }
 
 export function Friends() {
-  const { friends, addFriend, removeFriend, isFriend } = useFriends();
-  const { searchUsers } = useAuth();
+  const { friends, incomingRequests, outgoingRequests, searchUsers, sendFriendRequest, acceptRequest, declineRequest, removeFriend, connectionStatus } =
+    useFriends();
 
   const [query, setQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
@@ -30,11 +29,21 @@ export function Friends() {
       return;
     }
     setIsSearching(true);
+    let cancelled = false;
     const timeout = window.setTimeout(() => {
-      setResults(searchUsers(term));
-      setIsSearching(false);
+      searchUsers(term)
+        .then((found) => {
+          if (!cancelled) setResults(found);
+        })
+        .catch((error) => console.warn('[amigos] Falha ao buscar usuários.', error))
+        .finally(() => {
+          if (!cancelled) setIsSearching(false);
+        });
     }, 250);
-    return () => window.clearTimeout(timeout);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeout);
+    };
   }, [query, searchUsers]);
 
   return (
@@ -51,21 +60,28 @@ export function Friends() {
         </div>
 
         <div className="mt-4">
-          {query.trim().length < 2 && <p className="text-xs text-(--color-ink-muted)">Digite pelo menos 2 letras para buscar entre as contas cadastradas neste dispositivo.</p>}
+          {query.trim().length < 2 && <p className="text-xs text-(--color-ink-muted)">Digite pelo menos 2 letras para buscar entre todas as contas cadastradas.</p>}
           {query.trim().length >= 2 && isSearching && <p className="text-sm text-(--color-ink-muted)">Buscando...</p>}
           {query.trim().length >= 2 && !isSearching && results !== null && results.length === 0 && <p className="text-sm text-(--color-ink-muted)">Nenhum usuário encontrado.</p>}
           {query.trim().length >= 2 && !isSearching && results !== null && results.length > 0 && (
             <div className="flex flex-col gap-2">
               <p className="text-xs font-semibold text-(--color-ink-muted) uppercase tracking-wide">Usuários encontrados</p>
               {results.map((user) => {
-                const alreadyFriend = isFriend(user.id);
+                const status = connectionStatus(user.id);
                 return (
                   <div key={user.id} className="flex items-center gap-3 py-1.5">
                     <PersonAvatar name={user.name} avatarDataUrl={user.avatarDataUrl} />
                     <span className="flex-1 text-sm font-medium truncate">{user.name}</span>
-                    <button onClick={() => addFriend(user)} disabled={alreadyFriend} className="flex items-center gap-1.5 text-sm font-semibold text-(--color-focus) disabled:text-(--color-ink-muted) disabled:cursor-default">
+                    <button
+                      onClick={() => sendFriendRequest(user)}
+                      disabled={status !== 'none'}
+                      className="flex items-center gap-1.5 text-sm font-semibold text-(--color-focus) disabled:text-(--color-ink-muted) disabled:cursor-default"
+                    >
                       <UserPlus size={15} />
-                      {alreadyFriend ? 'Já é seu amigo' : 'Adicionar'}
+                      {status === 'accepted' && 'Já é seu amigo'}
+                      {status === 'pending_sent' && 'Pedido enviado'}
+                      {status === 'pending_received' && 'Te enviou um pedido'}
+                      {status === 'none' && 'Adicionar'}
                     </button>
                   </div>
                 );
@@ -74,6 +90,45 @@ export function Friends() {
           )}
         </div>
       </Card>
+
+      {incomingRequests.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <h2 className="font-display text-lg font-semibold">Pedidos recebidos</h2>
+          {incomingRequests.map((req) => (
+            <Card key={req.id} className="flex items-center gap-3">
+              <PersonAvatar name={req.name} avatarDataUrl={req.avatarDataUrl} color={req.colorSeed} />
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold text-sm truncate">{req.name}</p>
+                <p className="text-xs text-(--color-ink-muted)">Quer se conectar com você</p>
+              </div>
+              <button onClick={() => acceptRequest(req.id)} aria-label={`Aceitar pedido de ${req.name}`} className="p-2 rounded-full text-(--color-focus) hover:bg-(--color-focus-soft) transition-colors">
+                <Check size={16} />
+              </button>
+              <button onClick={() => declineRequest(req.id)} aria-label={`Recusar pedido de ${req.name}`} className="p-2 rounded-full text-(--color-ink-muted) hover:text-(--color-danger) hover:bg-(--color-danger)/10 transition-colors">
+                <X size={16} />
+              </button>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {outgoingRequests.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <h2 className="font-display text-lg font-semibold">Pedidos enviados</h2>
+          {outgoingRequests.map((req) => (
+            <Card key={req.id} className="flex items-center gap-3">
+              <PersonAvatar name={req.name} avatarDataUrl={req.avatarDataUrl} color={req.colorSeed} />
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold text-sm truncate">{req.name}</p>
+                <p className="text-xs text-(--color-ink-muted)">Aguardando aceitar</p>
+              </div>
+              <button onClick={() => declineRequest(req.id)} aria-label={`Cancelar pedido para ${req.name}`} className="p-2 rounded-full text-(--color-ink-muted) hover:text-(--color-danger) hover:bg-(--color-danger)/10 transition-colors">
+                <X size={16} />
+              </button>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {friends.length === 0 ? (
         <Card className="text-center py-10 flex flex-col items-center gap-2">

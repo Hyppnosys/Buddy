@@ -5,6 +5,7 @@ import { Card } from '../components/Card';
 import { MascotAvatar } from '../components/MascotAvatar';
 import { Logo } from '../components/Logo';
 import { useAuth } from '../hooks/useAuth';
+import { isSupabaseConfigured } from '../services/supabaseClient';
 
 export function Login() {
   const [searchParams] = useSearchParams();
@@ -13,13 +14,17 @@ export function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { logIn, signUp } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
     setError(null);
-    const result = mode === 'login' ? logIn({ email, password }) : signUp({ name, email, password });
+    setIsSubmitting(true);
+    const result = mode === 'login' ? await logIn({ email, password }) : await signUp({ name, email, password });
+    setIsSubmitting(false);
     if (result.ok) navigate('/app');
     else setError(result.error);
   };
@@ -38,6 +43,12 @@ export function Login() {
             <Logo size={32} />
             Buddy
           </div>
+
+          {!isSupabaseConfigured && (
+            <p className="text-xs text-(--color-danger) bg-(--color-danger)/10 rounded-xl px-3 py-2 mb-5">
+              O banco de dados ainda não foi configurado (faltam <code>VITE_SUPABASE_URL</code> e <code>VITE_SUPABASE_ANON_KEY</code> em um arquivo <code>.env.local</code> — veja o README). Login e cadastro não vão funcionar até isso ser feito.
+            </p>
+          )}
 
           <div role="tablist" className="inline-flex items-center gap-1 p-1 rounded-full bg-(--color-surface-alt) mb-6 w-full">
             <button role="tab" aria-selected={mode === 'login'} onClick={() => setMode('login')} className={`flex-1 px-4 py-2 rounded-full text-sm font-semibold transition-all ${mode === 'login' ? 'bg-(--color-focus) text-white shadow-(--shadow-soft)' : 'text-(--color-ink-muted)'}`}>
@@ -69,10 +80,12 @@ export function Login() {
 
             {error && <p className="text-sm text-(--color-danger)">{error}</p>}
 
-            <Button type="submit" size="lg" className="w-full mt-2">{mode === 'login' ? 'Entrar' : 'Criar minha conta'}</Button>
+            <Button type="submit" size="lg" className="w-full mt-2" disabled={isSubmitting}>
+              {isSubmitting ? 'Um momento...' : mode === 'login' ? 'Entrar' : 'Criar minha conta'}
+            </Button>
           </form>
 
-          <p className="text-xs text-(--color-ink-muted) text-center mt-5">Seus dados ficam salvos neste dispositivo/navegador.</p>
+          <p className="text-xs text-(--color-ink-muted) text-center mt-5">Seus dados ficam salvos na sua conta — você continua de onde parou em qualquer dispositivo.</p>
           <p className="text-center mt-4">
             <Link to="/" className="text-sm text-(--color-ink-muted) hover:text-(--color-ink) underline">Voltar para a página inicial</Link>
           </p>

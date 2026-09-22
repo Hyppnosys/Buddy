@@ -13,12 +13,6 @@ export interface PublicUser {
   avatarDataUrl: string | null;
 }
 
-export interface StoredCredential {
-  userId: string;
-  email: string;
-  password: string;
-}
-
 export interface AuthFormValues {
   name?: string;
   email: string;

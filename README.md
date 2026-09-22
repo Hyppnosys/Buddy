@@ -2,13 +2,26 @@
 
 Um aplicativo de rotina pessoal: foco (Pomodoro), diário, check-in diário,
 respiração, yoga, amigos e uma lontra mascote que evolui com suas atividades —
-com contas locais (login/cadastro com validação de e-mail), tema claro/escuro
-e um layout com sidebar.
+com contas reais (login/cadastro com validação de e-mail, dados salvos num
+banco de dados na nuvem — veja "Banco de dados" abaixo), tema claro/escuro e
+um layout com sidebar.
 
 ## Como rodar
 
 ```bash
 npm install
+```
+
+**Antes do primeiro `npm run dev`**, configure o banco de dados (Supabase) —
+sem isso, login/cadastro/mascote/amigos não funcionam. Veja a seção
+"Banco de dados" mais abaixo para o passo a passo completo; resumindo:
+
+```bash
+cp .env.example .env.local
+# edite .env.local com a URL e a chave do seu projeto Supabase
+```
+
+```bash
 npm run dev
 ```
 
@@ -30,12 +43,15 @@ Abra o endereço mostrado no terminal (normalmente `http://localhost:5173`).
 - Tailwind CSS v4 (tokens de design via `@theme`, suporte a modo claro/escuro)
 - React Router (rotas públicas `/`, `/login`; área logada em `/app/*`)
 - Vitest + Testing Library para testes
-- Persistência via `localStorage`, com dados isolados por conta de usuário
+- **Supabase (Postgres + Auth)** para contas, progresso do mascote e amizades
+  — sincroniza entre dispositivos (veja "Banco de dados" abaixo)
+- `localStorage` só para o que não precisa sincronizar entre dispositivos
+  (preferências, diário, check-ins, sessões), isolado por conta de usuário
 
 ## Funcionalidades
 
 **Antes de entrar**
-- Tela inicial com a lontra mascote e logo (imagens reais, recoloridas em verde)
+- Tela inicial com a lontra mascote e logo (imagens reais, cor original)
 - Login / cadastro com validação de e-mail restrita a provedores conhecidos
   (Gmail, Outlook, Hotmail, Yahoo, iCloud, etc.)
 
@@ -54,12 +70,14 @@ Abra o endereço mostrado no terminal (normalmente `http://localhost:5173`).
   play/pause/volume que realmente funcionam; a seleção feita aqui é o que
   toca durante a respiração e outras atividades de relaxamento
 - **Estatísticas** — histórico completo de sessões
-- **Amigos** — busca real entre as contas cadastradas no dispositivo
-- **Mascote** — a lontra evolui (bebê → jovem → adulto) com pontos ganhos ao
-  completar check-in, diário, respiração/relaxamento e foco — todos
-  alimentam o mesmo XP central; nome e compartilhamento com amigos são
-  personalizáveis — a aparência (cores originais, castanho/laranja) é fixa,
-  sem opção de troca de cor
+- **Amigos** — busca real entre todas as contas cadastradas (qualquer
+  dispositivo), com pedido de amizade real: enviar, aceitar, recusar,
+  remover — tudo salvo no banco de dados
+- **Mascote** — a lontra evolui em marcos (Bebê → Jovem → Adulto) com pontos
+  ganhos ao completar check-in, diário, respiração/relaxamento e foco —
+  todos alimentam a mesma barra de progresso, salva no banco de dados; nome
+  e compartilhamento com amigos são personalizáveis — a aparência (cores
+  originais, castanho/laranja) é fixa, sem opção de troca de cor
 - **Perfil** — nome, foto (upload real), bio, logout
 - **Configurações** — timer, sons, tema, notificações, modo sem distrações
 
@@ -74,9 +92,13 @@ src/
                 useFriends, useMascot, useSettings, useTheme, useBreathingExercise...
   context/      Providers: Auth, Settings, Sessions, Journal, CheckIns,
                 Friends, Mascot, Toast
-  services/     storage.ts (localStorage) e notifications.ts (Notification API)
+  services/     supabaseClient.ts, mascotDb.ts e friendsDb.ts (banco de
+                dados), storage.ts (localStorage local) e notifications.ts
   types/        tipos TypeScript do domínio
-  utils/        formatação de tempo, estatísticas, e-mail, sons, yoga
+  utils/        mascotProgress.ts (lógica pura de fase/barra do mascote),
+                formatação de tempo, estatísticas, e-mail, sons, yoga
+supabase/
+  schema.sql    esquema completo do banco (tabelas, índices, políticas RLS)
 public/
   logo-otter.png       logo da lontra (imagem real, cor original laranja/azul —
                         círculo completo, com margem igual nos 4 lados, sem cortes)
@@ -84,16 +106,102 @@ public/
                         castanho/laranja/creme, não recoloridas)
 ```
 
+## Banco de dados
+
+Contas, progresso/fase do mascote e amizades são salvos no
+**[Supabase](https://supabase.com)** (Postgres + Auth), gratuito, para que o
+progresso do usuário continue o mesmo se ele sair e entrar de novo — inclusive
+em outro dispositivo. O restante (diário, check-ins, sessões, preferências)
+continua só no navegador, por não precisar sincronizar entre dispositivos.
+  
+**Passo a passo para configurar (necessário antes de rodar o app):**
+
+1. Crie um projeto gratuito em [supabase.com](https://supabase.com).
+2. No painel do projeto, abra **SQL Editor**, cole o conteúdo de
+   `supabase/schema.sql` e rode ("Run"). Isso cria as 4 tabelas, os índices e
+   as políticas de segurança (Row Level Security).
+3. Em **Authentication → Providers → Email**, **desative "Confirm email"**
+   (ela vem ligada por padrão em projetos novos). Sem isso, depois do
+   cadastro o app pede para confirmar o e-mail antes de deixar entrar — o que
+   funciona, mas muda o comportamento original de "cadastrou, já está
+   dentro".
+4. Em **Project Settings → API**, copie a **Project URL** e a chave **anon
+   public**.
+5. Copie `.env.example` para `.env.local` na raiz do projeto e cole os dois
+   valores:
+   ```
+   VITE_SUPABASE_URL=https://SEU-PROJETO.supabase.co
+   VITE_SUPABASE_ANON_KEY=SUA-CHAVE-ANON-PUBLIC
+   ```
+6. Rode `npm run dev` normalmente. Se as variáveis não estiverem
+   configuradas, a tela de login mostra um aviso claro em vez de falhar
+   silenciosamente.
+
+`.env.local` já está no `.gitignore` (via `*.local`) — a chave anon é segura
+de expor no navegador (é assim que o Supabase funciona: a segurança de
+verdade vem das políticas RLS no banco, não do segredo da chave), mas mesmo
+assim cada pessoa usa o seu próprio projeto/chave.
+
+### Tabelas
+
+| Tabela | Para quê | Campos principais |
+| --- | --- | --- |
+| `profiles` | Dados do usuário (1-para-1 com a conta de login) | `id`, `name`, `email`, `avatar_data_url`, `bio` |
+| `mascot_progress` | Fase, barra da fase atual, pontos extras, XP total | `user_id`, `stage`, `phase_progress`, `extra_points`, `total_xp`, `completed_phases`, `shared_with_friend_ids` |
+| `mascot_activity_log` | Histórico de atividades que geraram pontos | `user_id`, `reason`, `points`, `by_name`, `created_at` |
+| `friendships` | Pedidos de amizade e amizades aceitas | `requester_id`, `addressee_id`, `status` (`pending`/`accepted`) |
+
+Todas têm Row Level Security ligado: cada usuário só lê/edita as próprias
+linhas (perfis são publicamente legíveis, para a busca de amigos funcionar;
+amizades só são visíveis para quem participa delas).
+
+### Evolução do mascote (Bebê → Jovem → Adulto)
+
+A lógica de quando evoluir, quando resetar a barra e quando virar pontuação
+extra está isolada numa função pura (`applyActivityPoints`, em
+`src/utils/mascotProgress.ts`), coberta por 10 testes automatizados — o
+`MascotContext` só chama essa função e salva o resultado no banco.
+
+- **Bebê**: barra `0/20`. Ao completar 20, vira **Jovem** e a barra volta
+  para `0` (não fica cheia) — pontos que sobrarem da atividade que completou
+  a barra são aproveitados na barra nova, não descartados.
+- **Jovem**: barra `0/40`. Ao completar 40, vira **Adulto** e a barra volta
+  para `0` de novo.
+- **Adulto**: não evolui mais. A partir daí, cada ponto ganho vira
+  "pontuação extra" (`extra_points`), que só acumula, sem limite.
+- Um **XP total** (`total_xp`) separado nunca reseta — é o histórico
+  vitalício, mostrado como "pontos de cuidado no total" na tela do mascote.
+- Todo usuário novo começa obrigatoriamente como Bebê, barra em 0 (linha
+  criada no cadastro, em `AuthContext.signUp`).
+
+**Nota sobre os 3 marcos pedidos (20 / 60 / 80):** o pedido descreve 3
+marcos — 20 → Jovem, 60 → Adulto, 80 → "Adulto completamente evoluído" — mas
+o mascote só tem 3 fases com arte própria (Bebê/Jovem/Adulto); criar uma 4ª
+fase visual para o marco de 80 exigiria nova ilustração, fora do escopo
+combinado (o pedido também dizia para não alterar a evolução visual do
+mascote). Por isso os marcos foram implementados como **metas por fase** — 20
+pontos para completar a barra do Bebê, 40 pontos para completar a barra do
+Jovem (equivalente a "60 no total" da rodada anterior) — e o marco de 80 virou
+o ponto em que a "pontuação extra" do Adulto começa a contar história (não
+existe um 4º estado visual). Se preferir outro número aí, ou uma 4ª fase de
+verdade (precisaria de uma nova imagem), é só pedir.
+
+### Amizades
+
+Busca (`profiles`, por nome ou e-mail), pedido de amizade
+(`friendships` com `status = 'pending'`), aceitar (`status = 'accepted'`),
+recusar/remover (apaga a linha) e listar amigos — tudo via
+`src/services/friendsDb.ts` e `src/context/FriendsContext.tsx`. A tela de
+Amigos ganhou uma seção nova de "Pedidos recebidos"/"Pedidos enviados" para
+esse fluxo (antes, "adicionar" conectava direto, sem pedido).
+
 ## Decisões técnicas
 
-- **Contas locais (mock):** não há backend. Cadastro/login funcionam de
-  verdade — incluindo validação de e-mail e busca real de outros usuários
-  cadastrados — mas os dados ficam só no navegador do dispositivo.
 - **Mascote com imagens reais e cores originais:** as 3 fases ("bebê",
   "jovem", "adulto") usam ilustrações reais recortadas diretamente da arte
   de referência, sem qualquer recoloração — permanecem castanho/laranja/creme.
-  A logo (a lontrinha redonda no menu/topo) é uma peça separada e é a única
-  coisa recolorida para verde; os dois nunca compartilham estado ou lógica de
+  A logo (a lontrinha redonda no menu/topo) é uma peça separada, na sua cor
+  original (laranja/azul); os dois nunca compartilham estado ou lógica de
   cor. Não existe mais personalização de cor do mascote em nenhum lugar do
   código (removida por completo: sem seletor, botão, estado ou variável).
 - **3 fases, não 4:** havia uma fase extra ("ovo"/recém-nascido) que
@@ -101,21 +209,16 @@ public/
   mudava nada visualmente, o que fazia a evolução parecer quebrada. Ela foi
   removida; agora toda transição de fase troca a imagem exibida.
 - **Pontuação centralizada:** `MascotContext.addActivity(razão, pontos)` é o
-  único lugar que altera o XP do mascote. Check-in (+3, uma vez por dia),
-  Diário (+2, por registro), Respiração/Relaxamento (+3, só ao completar um
-  ciclo/rotina inteira) e Foco (+5, só ao concluir uma sessão Pomodoro) todos
-  chamam essa mesma função — nenhuma tela mantém seu próprio contador
-  separado. Cada chamada é guardada contra duplicidade (ex.: um `ref` que
-  impede creditar de novo antes de reiniciar a atividade).
-- **Marcos de progresso — Bebê 0 / Jovem 20 / Adulto 60:** os limiares em
-  `STAGE_THRESHOLDS` (`MascotContext.tsx`) são marcos absolutos de XP
-  acumulado (não somados entre si): Bebê começa em 0, cruzar 20 pontos
-  evolui para Jovem, e cruzar 60 pontos evolui para Adulto. Havia um
-  terceiro marco pedido (80 pontos, "Adulto completamente evoluído"), mas
-  o mascote só tem 3 fases ilustradas (bebê/jovem/adulto) e criar uma 4ª
-  fase visual exigiria nova arte — fora do escopo desta rodada, que pedia
-  explicitamente para não alterar a evolução visual do mascote. Os 80
-  pontos não foram implementados; ver observação no relatório de entrega.
+  único lugar que altera os pontos do mascote (e o único que grava no banco
+  de dados). Check-in (+3, uma vez por dia), Diário (+2, por registro),
+  Respiração/Relaxamento (+3, só ao completar um ciclo/rotina inteira) e
+  Foco (+5, só ao concluir uma sessão Pomodoro) todos chamam essa mesma
+  função — nenhuma tela mantém seu próprio contador separado. Cada chamada é
+  guardada contra duplicidade (ex.: um `ref` que impede creditar de novo
+  antes de reiniciar a atividade).
+- **Marcos de progresso (Bebê 0/20 → Jovem 0/40 → Adulto):** ver a seção
+  "Banco de dados" mais acima — a barra agora reseta a cada evolução em vez
+  de ser um XP acumulado fixo (`src/utils/mascotProgress.ts`).
 - **Logo circular sem cortes, cor original:** o arquivo
   `public/logo-otter.png` foi recortado de novo a partir da arte de
   referência original, com margem transparente igual nos 4 lados (o círculo

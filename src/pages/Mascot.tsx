@@ -4,7 +4,7 @@ import { Card } from '../components/Card';
 import { MascotAvatar } from '../components/MascotAvatar';
 import { useMascot } from '../hooks/useMascot';
 import { useFriends } from '../hooks/useFriends';
-import { nextStageInfo, STAGE_LABEL } from '../context/MascotContext';
+import { nextStageInfo, phaseGoalFor, STAGE_LABEL } from '../context/MascotContext';
 import { formatClock, formatDayLabel } from '../utils/time';
 
 export function Mascot() {
@@ -13,8 +13,11 @@ export function Mascot() {
   const [editingName, setEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState(mascot.name);
 
-  const nextStage = nextStageInfo(mascot.xp);
-  const progressPercent = nextStage ? Math.min(100, (mascot.xp / (mascot.xp + nextStage.xpToGo)) * 100) : 100;
+  const nextStage = nextStageInfo(mascot);
+  const goal = phaseGoalFor(mascot.stage);
+  // Adulto não tem meta (não evolui mais) — a barra vira só um indicador
+  // decorativo de pontuação extra, sempre cheia, com o total ao lado.
+  const progressPercent = goal ? Math.min(100, (mascot.phaseProgress / goal) * 100) : 100;
 
   const saveName = () => {
     renameMascot(nameDraft);
@@ -50,10 +53,12 @@ export function Mascot() {
             <div className="h-full bg-(--color-focus) transition-all duration-500" style={{ width: `${progressPercent}%` }} />
           </div>
           <p className="text-xs text-(--color-ink-muted) mt-2">
-            {nextStage ? `${nextStage.xpToGo} pontos para a fase "${STAGE_LABEL[nextStage.stage]}"` : 'Fase máxima alcançada! 🎉'}
+            {nextStage
+              ? `${mascot.phaseProgress}/${goal} · faltam ${nextStage.toGo} pontos para a fase "${nextStage.label}"`
+              : `Fase máxima alcançada! 🎉 +${mascot.extraPoints} pontos extras`}
           </p>
         </div>
-        <p className="text-xs text-(--color-ink-muted)">{mascot.xp} pontos de cuidado no total</p>
+        <p className="text-xs text-(--color-ink-muted)">{mascot.totalXp} pontos de cuidado no total</p>
       </Card>
 
       <Card>
@@ -67,9 +72,9 @@ export function Mascot() {
         ) : (
           <div className="flex flex-col gap-2">
             {friends.map((friend) => {
-              const isShared = mascot.sharedWithFriendIds.includes(friend.id);
+              const isShared = mascot.sharedWithFriendIds.includes(friend.userId);
               return (
-                <button key={friend.id} onClick={() => toggleShareWithFriend(friend.id)} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border text-left transition-colors ${isShared ? 'border-(--color-focus) bg-(--color-focus-soft)' : 'border-(--color-border) hover:bg-(--color-surface-alt)'}`}>
+                <button key={friend.id} onClick={() => toggleShareWithFriend(friend.userId)} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border text-left transition-colors ${isShared ? 'border-(--color-focus) bg-(--color-focus-soft)' : 'border-(--color-border) hover:bg-(--color-surface-alt)'}`}>
                   <span className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold shrink-0" style={{ backgroundColor: friend.colorSeed }}>{friend.name.charAt(0).toUpperCase()}</span>
                   <span className="flex-1 text-sm font-medium">{friend.name}</span>
                   {isShared && <Check size={16} className="text-(--color-focus)" />}

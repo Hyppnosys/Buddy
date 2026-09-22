@@ -1,5 +1,7 @@
 export interface Friend {
+  /** id da relação de amizade (linha em `friendships`), não do usuário. */
   id: string;
+  /** id do OUTRO usuário nessa amizade. */
   userId: string;
   name: string;
   avatarDataUrl: string | null;
@@ -20,7 +22,16 @@ export interface MascotActivityLog {
 
 export interface MascotState {
   name: string;
-  xp: number;
+  /** Fase atual: 'hatchling' (Bebê) -> 'young' (Jovem) -> 'grown' (Adulto). */
+  stage: MascotStage;
+  /** Pontos dentro da barra da fase ATUAL. Volta a 0 a cada evolução. */
+  phaseProgress: number;
+  /** Só cresce depois que stage = 'grown' — a "pontuação extra". */
+  extraPoints: number;
+  /** Total histórico de pontos, nunca reseta (estatística/histórico). */
+  totalXp: number;
+  /** Fases já concluídas, em ordem. */
+  completedPhases: MascotStage[];
   log: MascotActivityLog[];
   sharedWithFriendIds: string[];
 }
