@@ -19,18 +19,10 @@ export function ComboList({ combos, onSelect }: ComboListProps) {
             <p className="text-sm text-(--color-ink-muted) mt-1">{combo.description}</p>
           </div>
           <div className="flex items-center gap-4 text-xs text-(--color-ink-muted)">
-            <span className="flex items-center gap-1">
-              <ListOrdered size={13} />
-              {combo.poses.length} exercícios
-            </span>
-            <span className="flex items-center gap-1">
-              <Clock size={13} />
-              ~{estimatedMinutes(combo)} min
-            </span>
+            <span className="flex items-center gap-1"><ListOrdered size={13} />{combo.poses.length} exercícios</span>
+            <span className="flex items-center gap-1"><Clock size={13} />~{estimatedMinutes(combo)} min</span>
           </div>
-          <Button variant="secondary" onClick={() => onSelect(combo)} className="self-start">
-            Começar
-          </Button>
+          <Button variant="secondary" onClick={() => onSelect(combo)} className="self-start">Começar</Button>
         </Card>
       ))}
     </div>

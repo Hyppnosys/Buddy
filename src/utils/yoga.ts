@@ -1,9 +1,5 @@
 import type { YogaPose, YogaRoutine } from '../types/wellness';
 
-/**
- * The full catalog of poses. Combos below reference these by id, so a new
- * combo can be created just by listing existing pose ids — no duplication.
- */
 export const YOGA_POSES: Record<string, YogaPose> = {
   mountain: { id: 'mountain', name: 'Postura da montanha', seconds: 20, cue: 'Fique em pé, ombros relaxados, respire fundo.' },
   'forward-fold': { id: 'forward-fold', name: 'Flexão para frente', seconds: 25, cue: 'Incline o tronco à frente, deixe os braços soltos.' },
@@ -15,46 +11,20 @@ export const YOGA_POSES: Record<string, YogaPose> = {
 };
 
 function buildRoutine(id: string, name: string, description: string, poseIds: string[]): YogaRoutine {
-  return {
-    id,
-    name,
-    description,
-    poses: poseIds.map((poseId) => YOGA_POSES[poseId]),
-  };
+  return { id, name, description, poses: poseIds.map((poseId) => YOGA_POSES[poseId]) };
 }
 
-/** Several short, named combos — new ones can be added here with just a list of pose ids. */
 export const YOGA_COMBOS: YogaRoutine[] = [
-  buildRoutine(
-    'fluxo-suave',
-    'Fluxo suave',
-    'Uma sequência completa para alongar o corpo e acalmar a mente.',
-    ['mountain', 'forward-fold', 'cat-cow', 'downward-dog', 'child-pose', 'seated-twist', 'final-rest']
-  ),
-  buildRoutine(
-    'alongamento-rapido',
-    'Alongamento rápido',
-    'Três posturas simples para soltar o corpo em poucos minutos.',
-    ['mountain', 'forward-fold', 'child-pose']
-  ),
-  buildRoutine(
-    'energia-matinal',
-    'Energia matinal',
-    'Ative o corpo logo cedo com movimento e respiração.',
-    ['cat-cow', 'downward-dog', 'mountain']
-  ),
-  buildRoutine(
-    'relaxamento-noturno',
-    'Relaxamento noturno',
-    'Desacelere antes de dormir com posturas baixas e calmas.',
-    ['child-pose', 'seated-twist', 'final-rest']
-  ),
-  buildRoutine(
-    'combo-diario',
-    'Combo diário',
-    'A rotina completa recomendada para praticar todos os dias.',
-    ['mountain', 'cat-cow', 'downward-dog', 'forward-fold', 'seated-twist', 'child-pose', 'final-rest']
-  ),
+  buildRoutine('fluxo-suave', 'Fluxo suave', 'Uma sequência completa para alongar o corpo e acalmar a mente.',
+    ['mountain', 'forward-fold', 'cat-cow', 'downward-dog', 'child-pose', 'seated-twist', 'final-rest']),
+  buildRoutine('alongamento-rapido', 'Alongamento rápido', 'Três posturas simples para soltar o corpo em poucos minutos.',
+    ['mountain', 'forward-fold', 'child-pose']),
+  buildRoutine('energia-matinal', 'Energia matinal', 'Ative o corpo logo cedo com movimento e respiração.',
+    ['cat-cow', 'downward-dog', 'mountain']),
+  buildRoutine('relaxamento-noturno', 'Relaxamento noturno', 'Desacelere antes de dormir com posturas baixas e calmas.',
+    ['child-pose', 'seated-twist', 'final-rest']),
+  buildRoutine('combo-diario', 'Combo diário', 'A rotina completa recomendada para praticar todos os dias.',
+    ['mountain', 'cat-cow', 'downward-dog', 'forward-fold', 'seated-twist', 'child-pose', 'final-rest']),
 ];
 
 export function estimatedMinutes(routine: YogaRoutine): number {
@@ -66,5 +36,4 @@ export function findYogaCombo(id: string | null): YogaRoutine {
   return YOGA_COMBOS.find((c) => c.id === id) ?? YOGA_COMBOS[0];
 }
 
-/** Kept for backwards compatibility with any existing imports. */
 export const YOGA_ROUTINE = YOGA_COMBOS[0];

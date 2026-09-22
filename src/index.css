@@ -97,12 +97,12 @@ body {
 }
 
 @keyframes breathe-in {
-  from { transform: scale(0.72); }
+  from { transform: scale(0.8); }
   to { transform: scale(1); }
 }
 @keyframes breathe-out {
   from { transform: scale(1); }
-  to { transform: scale(0.72); }
+  to { transform: scale(0.8); }
 }
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(6px); }
@@ -126,7 +126,6 @@ body {
 .animate-toast-in { animation: toast-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
 .animate-soft-pulse { animation: soft-pulse 2.2s ease-in-out infinite; }
 
-/* subtle custom scrollbar */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {

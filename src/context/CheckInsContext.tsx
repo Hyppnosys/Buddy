@@ -45,12 +45,7 @@ export function CheckInsProvider({ children }: { children: ReactNode }) {
       todayCheckIn,
       submitCheckIn: (input) => {
         const date = todayKey();
-        const entry: DailyCheckIn = {
-          id: createId(),
-          date,
-          createdAt: new Date().toISOString(),
-          ...input,
-        };
+        const entry: DailyCheckIn = { id: createId(), date, createdAt: new Date().toISOString(), ...input };
         setCheckIns((prev) => [entry, ...prev.filter((c) => c.date !== date)]);
       },
     }),

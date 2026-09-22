@@ -9,10 +9,10 @@ export interface JournalEntry {
 
 export interface DailyCheckIn {
   id: string;
-  date: string; // yyyy-mm-dd, one per day
+  date: string;
   mood: Mood;
-  sleepQuality: number; // 1-5
-  energyLevel: number; // 1-5
+  sleepQuality: number;
+  energyLevel: number;
   gratitude: string;
   createdAt: string;
 }

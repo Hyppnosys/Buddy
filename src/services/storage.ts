@@ -1,27 +1,21 @@
-/**
- * Thin wrapper around localStorage so that the rest of the app never touches
- * `window.localStorage` directly. This is the seam where a future backend
- * (REST API + PostgreSQL) could be swapped in without touching consumers.
- */
-
 const PREFIX = 'buddy:';
 
 export function scopedKey(base: string, userId: string | null): string {
   return userId ? `${base}:${userId}` : base;
 }
 
+// Usuários, progresso/pontuação/fase do mascote e amizades agora vivem no
+// banco de dados (Supabase — veja src/services/supabaseClient.ts e
+// supabase/schema.sql), não mais aqui. As chaves abaixo continuam guardando
+// só o que não precisa sincronizar entre dispositivos (preferências locais,
+// diário, check-ins, sessões).
 export const STORAGE_KEYS = {
   settings: `${PREFIX}settings`,
   timerSettings: `${PREFIX}timer-settings`,
   sessions: `${PREFIX}sessions`,
   timerState: `${PREFIX}timer-state`,
-  users: `${PREFIX}users`,
-  credentials: `${PREFIX}credentials`,
-  sessionUserId: `${PREFIX}session-user-id`,
   journal: `${PREFIX}journal`,
   checkins: `${PREFIX}checkins`,
-  friends: `${PREFIX}friends`,
-  mascot: `${PREFIX}mascot`,
 } as const;
 
 export function readStorage<T>(key: string, fallback: T): T {
