@@ -8,6 +8,7 @@ import { FriendsProvider } from './context/FriendsContext';
 import { MascotProvider } from './context/MascotContext';
 import { ToastProvider } from './context/ToastContext';
 import { ToastStack } from './components/ToastStack';
+import { PwaUpdatePrompt } from './components/PwaUpdatePrompt';
 import { AppLayout } from './components/AppLayout';
 import { ProtectedRoute, PublicOnlyRoute } from './components/RouteGuards';
 import { useAuth } from './hooks/useAuth';
@@ -54,6 +55,7 @@ export default function App() {
           <ToastProvider>
             <BrowserRouter>
               <ToastStack />
+              <PwaUpdatePrompt />
               <Routes>
                 <Route element={<PublicOnlyRoute />}>
                   <Route path="/" element={<Landing />} />
