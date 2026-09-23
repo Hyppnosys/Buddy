@@ -47,6 +47,9 @@ Abra o endereço mostrado no terminal (normalmente `http://localhost:5173`).
   — sincroniza entre dispositivos (veja "Banco de dados" abaixo)
 - `localStorage` só para o que não precisa sincronizar entre dispositivos
   (preferências, diário, check-ins, sessões), isolado por conta de usuário
+- **PWA** (`vite-plugin-pwa`) — instalável na tela de início do Android e do
+  iPhone, funciona offline depois da primeira visita (veja "App instalável
+  (PWA)" abaixo)
 
 ## Funcionalidades
 
@@ -113,7 +116,7 @@ Contas, progresso/fase do mascote e amizades são salvos no
 progresso do usuário continue o mesmo se ele sair e entrar de novo — inclusive
 em outro dispositivo. O restante (diário, check-ins, sessões, preferências)
 continua só no navegador, por não precisar sincronizar entre dispositivos.
-  
+
 **Passo a passo para configurar (necessário antes de rodar o app):**
 
 1. Crie um projeto gratuito em [supabase.com](https://supabase.com).
@@ -195,6 +198,61 @@ recusar/remover (apaga a linha) e listar amigos — tudo via
 Amigos ganhou uma seção nova de "Pedidos recebidos"/"Pedidos enviados" para
 esse fluxo (antes, "adicionar" conectava direto, sem pedido).
 
+## App instalável (PWA)
+
+O Buddy é um **PWA** (Progressive Web App): o mesmo site pode ser "instalado"
+na tela de início do celular (Android ou iPhone), abre em tela cheia (sem a
+barra do navegador) e continua funcionando mesmo sem internet depois da
+primeira visita — sem precisar de loja de aplicativos nem conta de
+desenvolvedor.
+
+### Como instalar
+
+**Android (Chrome):** abra o site publicado no Chrome. Ou aparece
+automaticamente um banner "Adicionar Buddy à tela inicial", ou vá no menu
+"⋮" → **"Instalar app"** / **"Adicionar à tela inicial"**.
+
+**iPhone (Safari — precisa ser o Safari, outros navegadores no iOS não
+oferecem essa opção):** abra o site no Safari, toque no ícone de
+compartilhar (o quadrado com a seta para cima) e escolha **"Adicionar à
+Tela de Início"**.
+
+Depois de instalado, o Buddy aparece como um ícone normal, junto dos outros
+apps do celular.
+
+### Como funciona por baixo dos panos
+
+- `vite-plugin-pwa` (`vite.config.ts`) gera, no build de produção, um
+  `manifest.webmanifest` (nome, ícones, cor do tema, `display: standalone`)
+  e um service worker (`sw.js`) que guarda em cache os arquivos do app
+  (HTML/CSS/JS/ícones) — é isso que permite abrir instantaneamente e
+  funcionar offline. Chamadas ao Supabase **não** ficam em cache — sempre
+  vão para a rede normalmente, como antes; só os arquivos do próprio app são
+  servidos localmente.
+- **Atualização:** uma nova versão publicada é baixada em segundo plano
+  automaticamente, mas **não troca sozinha** enquanto a pessoa está com o
+  app aberto (pra não misturar código antigo com novo no meio do uso). Em
+  vez disso, aparece uma barrinha no rodapé — **"Nova versão disponível ·
+  Atualizar"** (`src/components/PwaUpdatePrompt.tsx`) — e só troca quando a
+  pessoa toca nela. Sem tocar, ela continua na versão atual até fechar e
+  abrir o app de novo (aí a versão nova já entra sozinha).
+- Precisa de HTTPS pra funcionar como PWA de verdade (funciona em
+  `localhost` durante o desenvolvimento também) — o domínio do Vercel já
+  atende isso automaticamente, nenhuma configuração extra é necessária lá.
+- No próprio `npm run dev`, o service worker também é ativado (modo de
+  desenvolvimento do plugin), então dá pra testar o fluxo de instalação
+  localmente, sem precisar de build/deploy.
+
+### Isso NÃO é um app nativo publicado nas lojas
+
+PWA é instalável e parece um app, mas não aparece na Google Play nem na App
+Store, e alguns recursos do celular (notificações push "de verdade" no
+iPhone, por exemplo) ficam mais limitados que num app nativo. Se no futuro
+quiserem publicar nas lojas oficiais, dá pra reaproveitar esse mesmo código
+com o Capacitor (empacota o app React como Android/iOS "de verdade") — nesse
+caso a build de iOS vai exigir um Mac com Xcode, e contas de desenvolvedor
+pagas na Google e na Apple.
+
 ## Decisões técnicas
 
 - **Mascote com imagens reais e cores originais:** as 3 fases ("bebê",
@@ -228,8 +286,9 @@ esse fluxo (antes, "adicionar" conectava direto, sem pedido).
   "cortado"/quadrado. O formato/resolução ficaram assim definitivos; a cor
   em si foi revertida para a paleta original (laranja/azul) da arte de
   referência a pedido do usuário — a recoloração para verde foi descartada.
-  Também foram gerados `favicon.ico` (multi-resolução), `apple-touch-icon.png`,
-  `icon-192.png`/`icon-512.png` e um `site.webmanifest` com `purpose: "any"`.
+  Também foram gerados `favicon.ico` (multi-resolução), `apple-touch-icon.png`
+  e `icon-192.png`/`icon-512.png` — hoje usados também como ícones do PWA
+  (ver seção "App instalável (PWA)" abaixo).
 - **Respiração 4-4-4, determinística por tempo real:** o hook
   `useBreathingExercise` calcula a fase ativa a partir do tempo decorrido
   (`performance.now()`) módulo a duração total do ciclo (12s: 4+4+4), em vez
@@ -256,3 +315,8 @@ esse fluxo (antes, "adicionar" conectava direto, sem pedido).
   em cada nota (dois osciladores levemente destacados por voz, sem
   batidas/percussão), mais um pad grave bem baixo por baixo para dar corpo
   — soa como uma pequena música de fundo, não como um som isolado de piano.
+- **PWA sem tocar no resto do app:** a instalabilidade/offline vêm inteiramente
+  de configuração (`vite-plugin-pwa` em `vite.config.ts` + tags de `<head>`
+  em `index.html`) e de um componente novo e isolado
+  (`PwaUpdatePrompt.tsx`) — nenhuma tela, rota, contexto ou lógica existente
+  foi alterada para viabilizar isso. Ver seção "App instalável (PWA)" acima.
