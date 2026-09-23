@@ -137,15 +137,25 @@ export function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => 
   return (
     <div className="lg:hidden fixed inset-0 z-50">
       <button aria-label="Fechar menu" className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
-      <div className="absolute left-0 top-0 h-full w-72 max-w-[85vw] bg-(--color-surface) shadow-(--shadow-lift) animate-pop-in">
-        <div className="flex items-center gap-2 px-5 h-16 font-display font-semibold text-lg border-b border-(--color-border)">
+      {/* flex flex-col aqui é o que falta pra "h-full" da SidebarContent (abaixo)
+          significar "o que sobrou depois do cabeçalho" em vez de "a tela toda de
+          novo" — sem isso, cabeçalho (h-16) + conteúdo (h-full) juntos ficavam
+          mais altos que a tela, e a parte de baixo (Perfil/Sair) saía cortada. */}
+      <div className="absolute left-0 top-0 h-full w-72 max-w-[85vw] bg-(--color-surface) shadow-(--shadow-lift) animate-pop-in flex flex-col overflow-hidden">
+        <div className="shrink-0 flex items-center gap-2 px-5 h-16 font-display font-semibold text-lg border-b border-(--color-border)">
           <Logo size={32} />
           Buddy
           <button onClick={onClose} aria-label="Fechar menu" className="ml-auto p-2 rounded-full hover:bg-(--color-surface-alt) text-(--color-ink-muted)">
             <X size={18} />
           </button>
         </div>
-        <SidebarContent onNavigate={onClose} />
+        {/* flex-1 min-h-0 (em vez de deixar a SidebarContent, que já é h-full,
+            controlar sozinha) faz essa área ocupar exatamente o espaço restante
+            abaixo do cabeçalho — o que permite ao <nav> dela rolar por dentro
+            (ele já tem overflow-y-auto) e mantém Perfil/Sair sempre visíveis. */}
+        <div className="flex-1 min-h-0">
+          <SidebarContent onNavigate={onClose} />
+        </div>
       </div>
     </div>
   );
