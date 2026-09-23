@@ -19,7 +19,7 @@ export function YogaSession({ routine, onExit }: YogaSessionProps) {
 
   useEffect(() => {
     if (session.isComplete && !hasCreditedRef.current) {
-      addActivity(`Rotina de yoga concluída (${routine.name})`, 4);
+      addActivity(`Rotina de yoga concluída (${routine.name})`);
       hasCreditedRef.current = true;
     }
     if (session.isActive) hasCreditedRef.current = false;
