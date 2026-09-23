@@ -22,10 +22,16 @@ interface MascotContextValue {
   mascot: MascotState;
   stage: MascotState['stage'];
   isLoading: boolean;
-  addActivity: (reason: string, points: number, by?: string) => void;
+  addActivity: (reason: string, by?: string) => void;
   renameMascot: (name: string) => void;
   toggleShareWithFriend: (friendUserId: string) => void;
 }
+
+// Regra de pontuação atual: toda atividade vale exatamente 1 ponto, sem
+// distinção por tipo (foco, diário, check-in, respiração, yoga...). Fica
+// centralizado aqui em vez de cada chamador escolher um valor, pra não
+// existir a possibilidade de uma atividade valer "2" ou "5" por engano.
+const POINTS_PER_ACTIVITY = 1;
 
 export const MascotContext = createContext<MascotContextValue | null>(null);
 
@@ -69,7 +75,7 @@ export function MascotProvider({ children }: { children: ReactNode }) {
   }, [currentUser?.id]);
 
   const addActivity = useCallback(
-    async (reason: string, points: number, by = 'Você') => {
+    async (reason: string, by = 'Você') => {
       if (!currentUser) return;
       // Garante que uma atividade concluída ANTES do progresso terminar de
       // carregar não sobrescreva o que já está salvo — espera o load em
@@ -77,6 +83,7 @@ export function MascotProvider({ children }: { children: ReactNode }) {
       if (loadPromiseRef.current) await loadPromiseRef.current;
 
       const userId = currentUser.id;
+      const points = POINTS_PER_ACTIVITY;
       const optimisticEntry: MascotActivityLog = {
         id: `pending-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
         reason,

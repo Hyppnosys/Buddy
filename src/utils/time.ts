@@ -38,6 +38,12 @@ export function formatClock(iso: string): string {
   return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 }
 
+/** Data completa em dd/mm/aaaa — usado onde "Hoje"/"Ontem" (formatDayLabel)
+ * não faz sentido, como em exportações e relatórios. */
+export function formatFullDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
 export function formatDayLabel(iso: string): string {
   const date = new Date(iso);
   const today = new Date();
