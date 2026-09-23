@@ -46,6 +46,13 @@ export function MascotProvider({ children }: { children: ReactNode }) {
   const [mascot, setMascot] = useState<MascotState>(EMPTY_MASCOT);
   const [isLoading, setIsLoading] = useState(false);
   const loadPromiseRef = useRef<Promise<void> | null>(null);
+  // Espelha `mascot` para leitura síncrona dentro de addActivity — ver o
+  // comentário lá embaixo sobre por que não lemos o progresso "prev" de
+  // dentro do updater do setMascot.
+  const mascotRef = useRef(mascot);
+  useEffect(() => {
+    mascotRef.current = mascot;
+  }, [mascot]);
 
   useEffect(() => {
     if (!currentUser) {
@@ -78,21 +85,29 @@ export function MascotProvider({ children }: { children: ReactNode }) {
         at: new Date().toISOString(),
       };
 
-      setMascot((prev) => {
-        const nextProgress = applyActivityPoints(prev, points);
-        const next: MascotState = { ...prev, ...nextProgress, log: [optimisticEntry, ...prev.log].slice(0, 100) };
+      // A causa da atividade duplicada: `persistMascotProgress` e
+      // `insertActivityLog` (chamadas de rede) estavam sendo disparadas
+      // de DENTRO do updater passado pro setMascot. Updaters de estado
+      // devem ser puros — o React pode (e no Strict Mode do modo dev,
+      // sempre) invocar essa função mais de uma vez e descartar um dos
+      // resultados, mas quaisquer chamadas de rede feitas ali dentro já
+      // foram disparadas e não têm como ser "descartadas": cada activity
+      // acabava sendo inserida duas vezes no banco. O cálculo dos pontos
+      // (`applyActivityPoints`) continua o mesmo e não foi alterado — só
+      // passou a ser lido de `mascotRef.current` em vez do `prev` do
+      // updater, e as chamadas de rede saíram do updater para o corpo
+      // normal da função, sendo disparadas uma única vez por atividade.
+      const nextProgress = applyActivityPoints(mascotRef.current, points);
+      setMascot((prev) => ({ ...prev, ...nextProgress, log: [optimisticEntry, ...prev.log].slice(0, 100) }));
 
-        persistMascotProgress(userId, nextProgress).catch((error) =>
-          console.warn('[mascot] Falha ao salvar progresso no banco de dados.', error)
-        );
-        insertActivityLog(userId, reason, points, by)
-          .then((saved) => {
-            setMascot((cur) => ({ ...cur, log: [saved, ...cur.log.filter((l) => l.id !== optimisticEntry.id)].slice(0, 100) }));
-          })
-          .catch((error) => console.warn('[mascot] Falha ao salvar atividade no banco de dados.', error));
-
-        return next;
-      });
+      persistMascotProgress(userId, nextProgress).catch((error) =>
+        console.warn('[mascot] Falha ao salvar progresso no banco de dados.', error)
+      );
+      insertActivityLog(userId, reason, points, by)
+        .then((saved) => {
+          setMascot((cur) => ({ ...cur, log: [saved, ...cur.log.filter((l) => l.id !== optimisticEntry.id)].slice(0, 100) }));
+        })
+        .catch((error) => console.warn('[mascot] Falha ao salvar atividade no banco de dados.', error));
     },
     [currentUser]
   );
