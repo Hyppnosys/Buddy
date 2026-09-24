@@ -1,0 +1,74 @@
+[
+    {
+        "id": 9,
+        "nome_ingles": "chair pose",
+        "nome_sanskrit": "Utkaṭāsana",
+        "nome_portugues": "Cadeira",
+        "descricao_portugues": "Em pé, os pés ficam juntos e firmes no chão com os dedos ativamente levantados. Os joelhos se dobram e o peso do corpo fica sobre os calcanhares. A pelve fica recolhida e a caixa torácica elevada. Os braços sobem em direção ao céu com os cotovelos esticados e os bíceps perto das orelhas. O olhar segue para frente.",
+        "url_imagem": "https://res.cloudinary.com/dko1be2jy/image/upload/fl_sanitize/v1676483078/yoga-api/9_ewvoun.png"
+    },
+    {
+        "id": 41,
+        "nome_ingles": "Tree Pose",
+        "nome_sanskrit": "Vṛkṣāsana",
+        "nome_portugues": "Árvore",
+        "descricao_portugues": "Em pé, um pé fica firme no chão enquanto o calcanhar oposto se apoia na parte interna da coxa, com os dedos apontando para baixo. A pelve e o queixo ficam recolhidos. Os braços se levantam acima da cabeça com as palmas juntas em posição de oração. O olhar segue para frente.",
+        "url_imagem": "https://res.cloudinary.com/dko1be2jy/image/upload/fl_sanitize/v1676483094/yoga-api/41_veknug.png"
+    },
+    {
+        "id": 42,
+        "nome_ingles": "Triangel pose",
+        "nome_sanskrit": "Trikoṇāsana",
+        "nome_portugues": "Triângulo",
+        "descricao_portugues": "Em pé, as pernas ficam retas e afastadas em postura ampla. Os pés ficam alinhados no chão com o pé de trás em 60 graus voltado para a frente. Um braço se estende para cima em direção ao céu enquanto o outro desce até o chão. Os dois braços ficam alinhados com os ombros em linha reta. O olhar segue para a frente.",
+        "url_imagem": "https://res.cloudinary.com/dko1be2jy/image/upload/fl_sanitize/v1676483096/yoga-api/42_jawxqw.png"
+    },
+    {
+        "id": 44,
+        "nome_ingles": "Warrior 1 pose",
+        "nome_sanskrit": "Vīrabhadrāsana I",
+        "nome_portugues": "Guerreiro Um",
+        "descricao_portugues": "Em pé, as pernas ficam em postura ampla com os pés alinhados no chão. O pé de trás em 60 graus voltado para a frente. Os quadris ficam de frente. O joelho da frente dobra em 90 graus acima do tornozelo. Os braços se estendem para cima com os bíceps perto das orelhas. O olhar segue para frente.",
+        "url_imagem": "https://res.cloudinary.com/dko1be2jy/image/upload/fl_sanitize/v1676483096/yoga-api/44_dqeayo.png"
+    },
+    {
+        "id": 45,
+        "nome_ingles": "Warrior 2 pose",
+        "nome_sanskrit": "Vīrabhadrāsana II",
+        "nome_portugues": "Guerreiro Dois",
+        "descricao_portugues": "Em pé, as pernas ficam afastadas em postura ampla. O joelho da frente dobra em 90 graus acima do tornozelo. A perna de trás fica estendida e reta. Os braços se estendem para os lados alinhados com os ombros em linha reta, com os dedos esticados e as escápulas se aproximando. O olhar segue em direção aos dedos da frente.",
+        "url_imagem": "https://res.cloudinary.com/dko1be2jy/image/upload/fl_sanitize/v1676483096/yoga-api/45_ehimr1.png"
+    },
+    {
+        "id": 100,
+        "nome_ingles": "Goddess pose",
+        "nome_sanskrit": "Utkaṭa Koṇāsana",
+        "nome_portugues": "Deusa",
+        "descricao_portugues": "Em pé, os pés ficam afastados bem além da largura dos ombros com os dedos voltados para fora em 45 graus. Os joelhos se dobram profundamente alinhados com os dedos dos pés. Os braços se abrem para os lados em ângulo de 90 graus, com os cotovelos dobrados e os dedos apontando para cima. A coluna fica ereta e a caixa torácica elevada. O olhar segue para frente.",
+        "url_imagem": "https://res.cloudinary.com/dko1be2jy/image/upload/fl_sanitize/v1676483081/yoga-api/15_jbsvdl.png"
+    },
+    {
+        "id": 101,
+        "nome_ingles": "Namaskara pose",
+        "nome_sanskrit": "Añjalī Mudrā",
+        "nome_portugues": "Namaskara",
+        "descricao_portugues": "Em pé com os pés juntos e o corpo ereto, as palmas das mãos se unem no centro do peito em posição de oração. Os dedos apontam para cima e os polegares tocam levemente o esterno. Os ombros ficam relaxados e afastados das orelhas. A respiração é suave e consciente. O olhar segue para frente ou os olhos se fecham suavemente.",
+        "url_imagem": "https://res.cloudinary.com/dko1be2jy/image/upload/fl_sanitize/v1676483079/yoga-api/10_airpjl.png"
+    },
+    {
+        "id": 102,
+        "nome_ingles": "Raised arm pose",
+        "nome_sanskrit": "Urdhva Hastāsana",
+        "nome_portugues": "Braços Elevados",
+        "descricao_portugues": "Em pé com os pés juntos e firmes no chão, os braços se elevam acima da cabeça com as palmas voltadas uma para a outra e os dedos bem abertos. Os ombros ficam afastados das orelhas e a caixa torácica se expande. A coluna se alonga e a pelve fica neutra. O olhar pode seguir para frente ou levemente para cima em direção às mãos.",
+        "url_imagem": "https://res.cloudinary.com/dko1be2jy/image/upload/fl_sanitize/v1676483096/yoga-api/46_yifkdl.png"
+    },
+    {
+        "id": 103,
+        "nome_ingles": "Side bend pose",
+        "nome_sanskrit": "Pārśva Urdhva Hastāsana",
+        "nome_portugues": "Flexão Lateral",
+        "descricao_portugues": "Em pé com os pés juntos, os braços se elevam acima da cabeça e o corpo se inclina suavemente para um dos lados, criando um arco lateral alongado. O quadril do lado oposto empurra levemente para fora para aprofundar o alongamento. A caixa torácica fica aberta e os ombros relaxados. O olhar segue para frente ou levemente para cima.",
+        "url_imagem": "https://res.cloudinary.com/dko1be2jy/image/upload/fl_sanitize/v1676483083/yoga-api/19_heaavb.png"
+    }
+]
