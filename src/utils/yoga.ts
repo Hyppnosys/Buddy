@@ -1,39 +1,69 @@
+import rotinasIoga from '../data/rotinas_ioga.json';
 import type { YogaPose, YogaRoutine } from '../types/wellness';
 
-export const YOGA_POSES: Record<string, YogaPose> = {
-  mountain: { id: 'mountain', name: 'Postura da montanha', seconds: 20, cue: 'Fique em pé, ombros relaxados, respire fundo.' },
-  'forward-fold': { id: 'forward-fold', name: 'Flexão para frente', seconds: 25, cue: 'Incline o tronco à frente, deixe os braços soltos.' },
-  'cat-cow': { id: 'cat-cow', name: 'Gato-vaca', seconds: 30, cue: 'De quatro apoios, alterne arquear e curvar as costas.' },
-  'downward-dog': { id: 'downward-dog', name: 'Cão olhando para baixo', seconds: 25, cue: 'Eleve os quadris, mãos e pés no chão, forme um V invertido.' },
-  'child-pose': { id: 'child-pose', name: 'Postura da criança', seconds: 30, cue: 'Sente sobre os calcanhares, estenda os braços à frente.' },
-  'seated-twist': { id: 'seated-twist', name: 'Torção sentada', seconds: 20, cue: 'Sentado, gire suavemente o tronco para cada lado.' },
-  'final-rest': { id: 'final-rest', name: 'Relaxamento final', seconds: 30, cue: 'Deite-se, feche os olhos, respire naturalmente.' },
-};
-
-function buildRoutine(id: string, name: string, description: string, poseIds: string[]): YogaRoutine {
-  return { id, name, description, poses: poseIds.map((poseId) => YOGA_POSES[poseId]) };
+interface RawPose {
+  id: number;
+  nome_ingles: string;
+  nome_sanskrit: string;
+  nome_portugues: string;
+  descricao_portugues: string;
+  url_imagem: string;
 }
 
-export const YOGA_COMBOS: YogaRoutine[] = [
-  buildRoutine('fluxo-suave', 'Fluxo suave', 'Uma sequência completa para alongar o corpo e acalmar a mente.',
-    ['mountain', 'forward-fold', 'cat-cow', 'downward-dog', 'child-pose', 'seated-twist', 'final-rest']),
-  buildRoutine('alongamento-rapido', 'Alongamento rápido', 'Três posturas simples para soltar o corpo em poucos minutos.',
-    ['mountain', 'forward-fold', 'child-pose']),
-  buildRoutine('energia-matinal', 'Energia matinal', 'Ative o corpo logo cedo com movimento e respiração.',
-    ['cat-cow', 'downward-dog', 'mountain']),
-  buildRoutine('relaxamento-noturno', 'Relaxamento noturno', 'Desacelere antes de dormir com posturas baixas e calmas.',
-    ['child-pose', 'seated-twist', 'final-rest']),
-  buildRoutine('combo-diario', 'Combo diário', 'A rotina completa recomendada para praticar todos os dias.',
-    ['mountain', 'cat-cow', 'downward-dog', 'forward-fold', 'seated-twist', 'child-pose', 'final-rest']),
-];
+const RAW_POSES = rotinasIoga as RawPose[];
+const POSE_DURATION_SECONDS = 30;
+
+function toPose(raw: RawPose): YogaPose {
+  return {
+    id: String(raw.id),
+    name: raw.nome_portugues,
+    seconds: POSE_DURATION_SECONDS,
+    cue: raw.descricao_portugues,
+    englishName: raw.nome_ingles,
+    sanskritName: raw.nome_sanskrit,
+    imageUrl: raw.url_imagem,
+  };
+}
+
+function findRawPose(id: number): RawPose | undefined {
+  return RAW_POSES.find((pose) => pose.id === id);
+}
+
+function buildRoutine(id: string, name: string, description: string, poseIds: number[]): YogaRoutine {
+  return {
+    id,
+    name,
+    description,
+    poses: poseIds
+      .map((poseId) => findRawPose(poseId))
+      .filter((pose): pose is RawPose => pose !== undefined)
+      .map(toPose),
+  };
+}
+
+export const YOGA_COMBOS: Record<string, YogaRoutine> = {
+  'equilibrio-alongamento': buildRoutine(
+    'equilibrio-alongamento',
+    'Equilíbrio & Alongamento',
+    'Uma sequência calma para melhorar equilíbrio e alongar o corpo todo.',
+    [9, 41, 42, 101],
+  ),
+  'forca-fluxo': buildRoutine(
+    'forca-fluxo',
+    'Força & Fluxo',
+    'Uma sequência mais dinâmica para fortalecer pernas, braços e core.',
+    [44, 45, 100, 102, 103],
+  ),
+};
+
+export function findYogaCombo(id: string): YogaRoutine | undefined {
+  return YOGA_COMBOS[id];
+}
 
 export function estimatedMinutes(routine: YogaRoutine): number {
   const totalSeconds = routine.poses.reduce((sum, pose) => sum + pose.seconds, 0);
   return Math.max(1, Math.round(totalSeconds / 60));
 }
 
-export function findYogaCombo(id: string | null): YogaRoutine {
-  return YOGA_COMBOS.find((c) => c.id === id) ?? YOGA_COMBOS[0];
-}
-
-export const YOGA_ROUTINE = YOGA_COMBOS[0];
+/** Alias de compatibilidade com código antigo que importava uma rotina única. */
+export const YOGA_ROUTINE = YOGA_COMBOS['equilibrio-alongamento'];
