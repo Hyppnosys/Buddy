@@ -49,7 +49,8 @@ export function YogaSession({ routine, onExit }: YogaSessionProps) {
         autoPlay
         playsInline
         muted
-        className="h-full w-full -scale-x-100 object-cover"
+        className="h-full w-full object-cover"
+        style={{ transform: `scaleX(-1) rotate(${session.rotation}deg)` }}"
       />
       {session.isActive && (
         <div className="absolute left-3 top-3 rounded-full bg-black/60 px-3 py-1 text-lg font-bold tabular-nums text-white">
