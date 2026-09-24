@@ -1,0 +1,20 @@
+names:
+- Goddess pose
+- Namaskara pose
+- Raised arm pose
+- Side bend pose
+- Tree Pose
+- Triangel pose
+- Warrior 1 pose
+- Warrior 2 pose
+- chair pose
+nc: 9
+roboflow:
+  license: CC BY 4.0
+  project: yoga-b3wvm
+  url: https://universe.roboflow.com/pavan-g/yoga-b3wvm/dataset/4
+  version: 4
+  workspace: pavan-g
+test: ../test/images
+train: ../train/images
+val: ../valid/images
