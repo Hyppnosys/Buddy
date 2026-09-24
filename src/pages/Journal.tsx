@@ -10,7 +10,7 @@ import { formatClock, formatDayLabel } from '../utils/time';
 import { buildJournalCsv, downloadCsv, filterEntriesByPeriod } from '../utils/journalExport';
 
 export function Journal() {
-  const { entries, addEntry, removeEntry } = useJournal();
+  const { entries, isLoading, addEntry, removeEntry } = useJournal();
   const { addActivity } = useMascot();
   const [content, setContent] = useState('');
   const [mood, setMood] = useState<Mood | null>(null);
@@ -97,7 +97,12 @@ export function Journal() {
           </Card>
         )}
 
-        {entries.length === 0 && <Card className="text-center py-10"><p className="text-sm text-(--color-ink-muted)">Nenhuma entrada ainda. Escreva a primeira acima.</p></Card>}
+        {isLoading && (
+          <Card className="text-center py-10"><p className="text-sm text-(--color-ink-muted)">Carregando suas entradas...</p></Card>
+        )}
+        {!isLoading && entries.length === 0 && (
+          <Card className="text-center py-10"><p className="text-sm text-(--color-ink-muted)">Nenhuma entrada ainda. Escreva a primeira acima.</p></Card>
+        )}
         {entries.map((entry) => (
           <Card key={entry.id} className="flex gap-3 items-start">
             <span className="text-2xl shrink-0" aria-hidden>{moodEmoji(entry.mood)}</span>
