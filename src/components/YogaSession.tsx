@@ -50,8 +50,16 @@ export function YogaSession({ routine, onExit }: YogaSessionProps) {
         playsInline
         muted
         className="h-full w-full object-cover"
-        style={{ transform: `scaleX(-1) rotate(${session.rotation}deg)` }}"
+        style={{ transform: `scaleX(-1) rotate(${session.rotation}deg)` }}
       />
+      <button
+        type="button"
+        onClick={session.cycleRotation}
+        title="Girar câmera (use se a imagem não estiver em pé)"
+        className="absolute right-2 top-2 rounded-full bg-black/60 p-1.5 text-white hover:bg-black/80"
+      >
+        <RotateCw size={14} />
+      </button>
       {session.isActive && (
         <div className="absolute left-3 top-3 rounded-full bg-black/60 px-3 py-1 text-lg font-bold tabular-nums text-white">
           {session.secondsLeft}s
