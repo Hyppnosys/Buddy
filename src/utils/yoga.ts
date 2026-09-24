@@ -65,5 +65,10 @@ export function findYogaCombo(id: string | null): YogaRoutine {
   return YOGA_COMBOS.find((c) => c.id === id) ?? YOGA_COMBOS[0];
 }
 
+export function estimatedMinutes(routine: YogaRoutine): number {
+  const totalSeconds = routine.poses.reduce((sum, pose) => sum + pose.seconds, 0);
+  return Math.max(1, Math.round(totalSeconds / 60));
+}
+
 /** Mantido por compatibilidade com qualquer import existente. */
 export const YOGA_ROUTINE = YOGA_COMBOS[0];
