@@ -41,29 +41,29 @@ function buildRoutine(id: string, name: string, description: string, poseIds: nu
   };
 }
 
-export const YOGA_COMBOS: Record<string, YogaRoutine> = {
-  'equilibrio-alongamento': buildRoutine(
+/**
+ * Duas rotinas montadas a partir das 9 posturas do modelo treinado
+ * (rotinas_ioga.json / data.yaml). Cada pose fica 30s na tela e é validada
+ * em tempo real comparando com `englishName` (classe prevista pela IA local).
+ */
+export const YOGA_COMBOS: YogaRoutine[] = [
+  buildRoutine(
     'equilibrio-alongamento',
     'Equilíbrio & Alongamento',
-    'Uma sequência calma para melhorar equilíbrio e alongar o corpo todo.',
-    [9, 41, 42, 101],
+    'Posturas de base para equilíbrio, alongamento e concentração.',
+    [9, 41, 42, 101], // chair pose, Tree Pose, Triangel pose, Namaskara pose
   ),
-  'forca-fluxo': buildRoutine(
+  buildRoutine(
     'forca-fluxo',
     'Força & Fluxo',
-    'Uma sequência mais dinâmica para fortalecer pernas, braços e core.',
-    [44, 45, 100, 102, 103],
+    'Sequência mais intensa para fortalecer pernas, core e postura.',
+    [44, 45, 100, 102, 103], // Warrior 1, Warrior 2, Goddess, Raised arm, Side bend
   ),
-};
+];
 
-export function findYogaCombo(id: string): YogaRoutine | undefined {
-  return YOGA_COMBOS[id];
+export function findYogaCombo(id: string | null): YogaRoutine {
+  return YOGA_COMBOS.find((c) => c.id === id) ?? YOGA_COMBOS[0];
 }
 
-export function estimatedMinutes(routine: YogaRoutine): number {
-  const totalSeconds = routine.poses.reduce((sum, pose) => sum + pose.seconds, 0);
-  return Math.max(1, Math.round(totalSeconds / 60));
-}
-
-/** Alias de compatibilidade com código antigo que importava uma rotina única. */
-export const YOGA_ROUTINE = YOGA_COMBOS['equilibrio-alongamento'];
+/** Mantido por compatibilidade com qualquer import existente. */
+export const YOGA_ROUTINE = YOGA_COMBOS[0];
