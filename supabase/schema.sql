@@ -52,7 +52,20 @@ create table if not exists public.mascot_activity_log (
 );
 create index if not exists mascot_activity_log_user_id_idx on public.mascot_activity_log (user_id, created_at desc);
 
--- 4. AMIZADES (pedido -> pendente -> aceito/recusado)
+-- 4. ENTRADAS DO DIÁRIO
+-- Antes, essas entradas só existiam no localStorage do navegador (por
+-- dispositivo) — por isso não sincronizavam entre celular/tablet/notebook,
+-- diferente do mascote, que já vivia aqui. Ver JournalContext.tsx.
+create table if not exists public.journal_entries (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  content text not null,
+  mood text not null check (mood in ('great', 'good', 'okay', 'low', 'rough')),
+  created_at timestamptz not null default now()
+);
+create index if not exists journal_entries_user_id_idx on public.journal_entries (user_id, created_at desc);
+
+-- 5. AMIZADES (pedido -> pendente -> aceito/recusado)
 create table if not exists public.friendships (
   id uuid primary key default gen_random_uuid(),
   requester_id uuid not null references public.profiles (id) on delete cascade,
@@ -68,6 +81,7 @@ create index if not exists friendships_requester_idx on public.friendships (requ
 alter table public.profiles enable row level security;
 alter table public.mascot_progress enable row level security;
 alter table public.mascot_activity_log enable row level security;
+alter table public.journal_entries enable row level security;
 alter table public.friendships enable row level security;
 
 drop policy if exists "profiles: leitura pública (busca de amigos)" on public.profiles;
@@ -84,6 +98,10 @@ create policy "mascot_progress: só o dono lê/edita" on public.mascot_progress
 
 drop policy if exists "mascot_activity_log: só o dono lê/insere" on public.mascot_activity_log;
 create policy "mascot_activity_log: só o dono lê/insere" on public.mascot_activity_log
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+drop policy if exists "journal_entries: só o dono lê/escreve/exclui" on public.journal_entries;
+create policy "journal_entries: só o dono lê/escreve/exclui" on public.journal_entries
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 drop policy if exists "friendships: envolvidos leem" on public.friendships;
