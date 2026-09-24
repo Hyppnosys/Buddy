@@ -1,76 +1,69 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import type { YogaRoutine } from '../types/wellness';
+import rotinasIoga from '../data/rotinas_ioga.json';
+import type { YogaPose, YogaRoutine } from '../types/wellness';
 
-export function useYogaSession(routine: YogaRoutine) {
-  const [isActive, setIsActive] = useState(false);
-  const [poseIndex, setPoseIndex] = useState(0);
-  const [secondsLeft, setSecondsLeft] = useState(routine.poses[0]?.seconds ?? 0);
-  const [isComplete, setIsComplete] = useState(false);
-  const intervalRef = useRef<number | null>(null);
+interface RawPose {
+  id: number;
+  nome_ingles: string;
+  nome_sanskrit: string;
+  nome_portugues: string;
+  descricao_portugues: string;
+  url_imagem: string;
+}
 
-  const clear = useCallback(() => {
-    if (intervalRef.current !== null) {
-      window.clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-  }, []);
+const RAW_POSES = rotinasIoga as RawPose[];
+const POSE_DURATION_SECONDS = 30;
 
-  useEffect(() => clear, [clear]);
-
-  const start = useCallback(() => {
-    setIsActive(true);
-    setIsComplete(false);
-    setPoseIndex(0);
-    setSecondsLeft(routine.poses[0]?.seconds ?? 0);
-  }, [routine]);
-
-  const stop = useCallback(() => {
-    setIsActive(false);
-    clear();
-    setPoseIndex(0);
-    setSecondsLeft(routine.poses[0]?.seconds ?? 0);
-  }, [clear, routine]);
-
-  const skipPose = useCallback(() => {
-    setPoseIndex((prev) => {
-      const next = prev + 1;
-      if (next >= routine.poses.length) {
-        setIsActive(false);
-        setIsComplete(true);
-        clear();
-        return prev;
-      }
-      setSecondsLeft(routine.poses[next]?.seconds ?? 0);
-      return next;
-    });
-  }, [routine, clear]);
-
-  useEffect(() => {
-    if (!isActive) return;
-    clear();
-    intervalRef.current = window.setInterval(() => {
-      setSecondsLeft((prev) => {
-        if (prev > 1) return prev - 1;
-        skipPose();
-        return prev;
-      });
-    }, 1000);
-    return clear;
-  }, [isActive, clear, skipPose]);
-
-  const currentPose = routine.poses[poseIndex];
-  const progress = currentPose ? 1 - secondsLeft / currentPose.seconds : 0;
-
+function toPose(raw: RawPose): YogaPose {
   return {
-    isActive,
-    isComplete,
-    currentPose,
-    poseIndex,
-    secondsLeft,
-    progress,
-    totalPoses: routine.poses.length,
-    start,
-    stop,
-    skipPose,
+    id: String(raw.id),
+    name: raw.nome_portugues,
+    seconds: POSE_DURATION_SECONDS,
+    cue: raw.descricao_portugues,
+    englishName: raw.nome_ingles,
+    sanskritName: raw.nome_sanskrit,
+    imageUrl: raw.url_imagem,
   };
 }
+
+function findRawPose(id: number): RawPose | undefined {
+  return RAW_POSES.find((pose) => pose.id === id);
+}
+
+function buildRoutine(id: string, name: string, description: string, poseIds: number[]): YogaRoutine {
+  return {
+    id,
+    name,
+    description,
+    poses: poseIds
+      .map((poseId) => findRawPose(poseId))
+      .filter((pose): pose is RawPose => pose !== undefined)
+      .map(toPose),
+  };
+}
+
+export const YOGA_COMBOS: Record<string, YogaRoutine> = {
+  'equilibrio-alongamento': buildRoutine(
+    'equilibrio-alongamento',
+    'Equilíbrio & Alongamento',
+    'Uma sequência calma para melhorar equilíbrio e alongar o corpo todo.',
+    [9, 41, 42, 101],
+  ),
+  'forca-fluxo': buildRoutine(
+    'forca-fluxo',
+    'Força & Fluxo',
+    'Uma sequência mais dinâmica para fortalecer pernas, braços e core.',
+    [44, 45, 100, 102, 103],
+  ),
+};
+
+export function findYogaCombo(id: string): YogaRoutine | undefined {
+  return YOGA_COMBOS[id];
+}
+
+export function estimatedMinutes(routine: YogaRoutine): number {
+  const totalSeconds = routine.poses.reduce((sum, pose) => sum + pose.seconds, 0);
+  return Math.max(1, Math.round(totalSeconds / 60));
+}
+
+/** Alias de compatibilidade com código antigo que importava uma rotina única. */
+export const YOGA_ROUTINE = YOGA_COMBOS['equilibrio-alongamento'];
