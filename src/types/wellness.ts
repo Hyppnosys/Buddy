@@ -9,10 +9,10 @@ export interface JournalEntry {
 
 export interface DailyCheckIn {
   id: string;
-  date: string;
+  date: string; // yyyy-mm-dd, one per day
   mood: Mood;
-  sleepQuality: number;
-  energyLevel: number;
+  sleepQuality: number; // 1-5
+  energyLevel: number; // 1-5
   gratitude: string;
   createdAt: string;
 }
@@ -22,6 +22,10 @@ export interface YogaPose {
   name: string;
   seconds: number;
   cue: string;
+  /** Nome em inglês usado no treino do modelo (classe detectada pela IA). */
+  englishName?: string;
+  sanskritName?: string;
+  imageUrl?: string;
 }
 
 export interface YogaRoutine {

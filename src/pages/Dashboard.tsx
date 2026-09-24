@@ -15,9 +15,8 @@ function greeting(): string {
 
 const SEQUENCES = [
   { label: 'Respiração', to: '/app/relaxar?tab=respirar', icon: Wind },
-  { label: 'Relaxamento', to: '/app/relaxar?tab=yoga&combo=relaxamento-noturno', icon: Sparkles },
-  { label: 'Alongamento', to: '/app/relaxar?tab=yoga&combo=alongamento-rapido', icon: Sparkles },
-  { label: 'Combo Diário', to: '/app/relaxar?tab=yoga&combo=combo-diario', icon: Sparkles },
+  { label: 'Equilíbrio & Alongamento', to: '/app/relaxar?tab=yoga&combo=equilibrio-alongamento', icon: Sparkles },
+  { label: 'Força & Fluxo', to: '/app/relaxar?tab=yoga&combo=forca-fluxo', icon: Sparkles },
 ];
 
 export function Dashboard() {
