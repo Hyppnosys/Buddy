@@ -1,4 +1,4 @@
-import { ChevronLeft, Play, RotateCcw, SkipForward, Square } from 'lucide-react';
+import { ChevronLeft, Play, RotateCcw, RotateCw, SkipForward, Square } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import type { YogaRoutine } from '../types/wellness';
 import { useYogaSession, type PoseFeedback } from '../hooks/useYogaSession';
